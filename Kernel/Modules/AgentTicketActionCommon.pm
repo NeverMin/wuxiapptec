@@ -2,6 +2,8 @@
 # Kernel/Modules/AgentTicketActionCommon.pm - common file for several modules
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Modules/AgentTicketActionCommon.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -17,6 +19,12 @@ use Kernel::System::Web::UploadCache;
 use Kernel::System::DynamicField;
 use Kernel::System::DynamicField::Backend;
 use Kernel::System::VariableCheck qw(:all);
+# ---
+# ITSM
+# ---
+use Kernel::System::Service;
+use Kernel::System::ITSMCIPAllocate;
+# ---
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -38,6 +46,12 @@ sub new {
     $Self->{UploadCacheObject}  = Kernel::System::Web::UploadCache->new(%Param);
     $Self->{DynamicFieldObject} = Kernel::System::DynamicField->new(%Param);
     $Self->{BackendObject}      = Kernel::System::DynamicField::Backend->new(%Param);
+# ---
+# ITSM
+# ---
+    $Self->{ServiceObject}        = Kernel::System::Service->new(%Param);
+    $Self->{CIPAllocateObject}    = Kernel::System::ITSMCIPAllocate->new(%Param);
+# ---
 
     # get form id
     $Self->{FormID} = $Self->{ParamObject}->GetParam( Param => 'FormID' );
@@ -222,6 +236,12 @@ sub Run {
 
     # get dynamic field values form http request
     my %DynamicFieldValues;
+# ---
+# ITSM
+# ---
+    # to store the reference to the dynamic field for the impact
+    my $ImpactDynamicFieldConfig;
+# ---
 
     # cycle trough the activated Dynamic Fields for this screen
     DYNAMICFIELD:
@@ -235,8 +255,100 @@ sub Run {
             ParamObject        => $Self->{ParamObject},
             LayoutObject       => $Self->{LayoutObject},
             );
+# ---
+# ITSM
+# ---
+        # impact field was found
+        if ( $DynamicFieldConfig->{Name} eq 'ITSMImpact' ) {
+
+            # store the reference to the impact field
+            $ImpactDynamicFieldConfig = $DynamicFieldConfig;
+        }
+# ---
     }
 
+# ---
+# ITSM
+# ---
+    # get needed stuff
+    $GetParam{DynamicField_ITSMImpact} = $Self->{ParamObject}->GetParam(Param => 'DynamicField_ITSMImpact');
+    $GetParam{PriorityRC}              = $Self->{ParamObject}->GetParam(Param => 'PriorityRC');
+    $GetParam{ElementChanged}          = $Self->{ParamObject}->GetParam(Param => 'ElementChanged') || '';
+
+    # check if priority needs to be recalculated
+    if ( $GetParam{ElementChanged} eq 'ServiceID' || ( $GetParam{DynamicField_ITSMImpact} && $GetParam{ElementChanged} eq 'DynamicField_ITSMImpact' ) ) {
+        $GetParam{PriorityRC} = 1;
+    }
+
+    # set service id from ticket
+    if ( !defined $GetParam{ServiceID} && $Ticket{ServiceID} ) {
+        $GetParam{ServiceID} = $Ticket{ServiceID};
+    }
+
+    # set impact from ticket
+    if ( !defined $GetParam{DynamicField_ITSMImpact} ) {
+        $GetParam{DynamicField_ITSMImpact} = $Ticket{DynamicField_ITSMImpact};
+    }
+
+    my %Service;
+    if ( $GetParam{ServiceID} ) {
+
+        # get service
+        %Service = $Self->{ServiceObject}->ServiceGet(
+            ServiceID     => $GetParam{ServiceID},
+            IncidentState => $Self->{Config}->{ShowIncidentState} || 0,
+            UserID        => $Self->{UserID},
+        );
+
+        # recalculate impact if impact is not set until now
+        if ( !$GetParam{DynamicField_ITSMImpact} && $GetParam{ElementChanged} ne 'DynamicField_ITSMImpact' ) {
+
+            # get default selection
+            my $DefaultSelection = $ImpactDynamicFieldConfig->{Config}->{DefaultValue};
+
+            if ($DefaultSelection) {
+
+                # get default impact
+                $GetParam{DynamicField_ITSMImpact} = $DefaultSelection;
+                $GetParam{PriorityRC} = 1;
+            }
+        }
+
+        # recalculate priority
+        if ( $GetParam{PriorityRC} && $GetParam{DynamicField_ITSMImpact} && $Self->{Config}->{Priority} ) {
+
+            if ( $GetParam{DynamicField_ITSMImpact} ) {
+
+                # get priority
+                $GetParam{PriorityIDFromImpact} = $Self->{CIPAllocateObject}->PriorityAllocationGet(
+                    Criticality => $Service{Criticality},
+                    Impact      => $GetParam{DynamicField_ITSMImpact},
+                );
+                if ( $GetParam{PriorityIDFromImpact} ) {
+                    $GetParam{NewPriorityID} = $GetParam{PriorityIDFromImpact};
+                }
+            }
+            else {
+                $GetParam{NewPriorityID} = '';
+            }
+        }
+    }
+
+    # no service was selected
+    else {
+
+        # do not show the default selection
+        $ImpactDynamicFieldConfig->{Config}->{DefaultValue} = '';
+
+        # show only the empty selection
+        $ImpactDynamicFieldConfig->{Config}->{PossibleValues} = {};
+        $GetParam{DynamicField_ITSMImpact} = '';
+    }
+
+    # set the selected impact
+    $DynamicFieldValues{ITSMImpact} = $GetParam{DynamicField_ITSMImpact};
+
+# ---
     # convert dynamic field values into a structure for ACLs
     my %DynamicFieldACLParameters;
     DYNAMICFIELD:
@@ -870,6 +982,25 @@ sub Run {
                 UserID             => $Self->{UserID},
             );
         }
+# ---
+# ITSM
+# ---
+        if ( ($GetParam{ServiceID} && $Service{Criticality} ) || !$GetParam{ServiceID} ) {
+
+            # get config for criticality dynamic field
+            my $CriticalityDynamicFieldConfig = $Self->{DynamicFieldObject}->DynamicFieldGet(
+                Name => 'ITSMCriticality',
+            );
+
+            # set the criticality
+            $Self->{BackendObject}->ValueSet(
+                DynamicFieldConfig => $CriticalityDynamicFieldConfig,
+                ObjectID           => $Self->{TicketID},
+                Value              => $Service{Criticality},
+                UserID             => $Self->{UserID},
+            );
+        }
+# ---
 
         # load new URL in parent window and close popup
         $ReturnURL ||= "Action=AgentTicketZoom;TicketID=$Self->{TicketID};ArticleID=$ArticleID";
@@ -878,6 +1009,50 @@ sub Run {
             URL => $ReturnURL,
         );
     }
+# ---
+# ITSM
+# ---
+    elsif ( $Self->{Subaction} eq 'GetServiceIncidentState' ) {
+
+        # get the selected service id
+        my $ServiceID = $Self->{ParamObject}->GetParam( Param => 'ServiceID' ) || '';
+
+        # build empty response hash
+        my %Response = (
+            CurInciSignal => '',
+            CurInciState  => '&nbsp',
+        );
+
+        # only if service id is selected and incident state should be shown in this screen
+        if ( $ServiceID && $Self->{Config}->{ShowIncidentState} ) {
+
+            # set incident signal
+            my %InciSignals = (
+                operational => 'greenled',
+                warning     => 'yellowled',
+                incident    => 'redled',
+            );
+
+            # build the response
+            %Response = (
+                CurInciSignal => $InciSignals{ $Service{CurInciStateType} },
+                CurInciState  => $Self->{LayoutObject}->{LanguageObject}->Get($Service{CurInciState}),
+            );
+        }
+
+        # encode response to JSON
+        my $JSON = $Self->{LayoutObject}->JSONEncode(
+            Data => \%Response,
+        );
+
+        return $Self->{LayoutObject}->Attachment(
+            ContentType => 'application/json; charset=' . $Self->{LayoutObject}->{Charset},
+            Content     => $JSON,
+            Type        => 'inline',
+            NoCache     => 1,
+        );
+    }
+# ---
     elsif ( $Self->{Subaction} eq 'AJAXUpdate' ) {
         my %Ticket = $Self->{TicketObject}->TicketGet( TicketID => $Self->{TicketID} );
         my $CustomerUser = $Ticket{CustomerUserID};
@@ -1775,6 +1950,11 @@ sub _Mask {
             );
         }
     }
+# ---
+# ITSM
+# ---
+    my @IndividualDynamicFields;
+# ---
 
     # Dynamic fields
     # cycle trough the activated Dynamic Fields for this screen
@@ -1791,6 +1971,15 @@ sub _Mask {
         # get the html strings form $Param
         my $DynamicFieldHTML = $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} };
 
+# ---
+# ITSM
+# ---
+        # remember dynamic fields that should be displayed individually
+        if ( $DynamicFieldConfig->{Name} eq 'ITSMImpact' ) {
+            push @IndividualDynamicFields, $DynamicFieldConfig;
+            next DYNAMICFIELD;
+        }
+# ---
         $Self->{LayoutObject}->Block(
             Name => 'DynamicField',
             Data => {
@@ -1810,6 +1999,27 @@ sub _Mask {
             },
         );
     }
+# ---
+# ITSM
+# ---
+    # cycle trough dynamic fields that should be displayed individually
+    DYNAMICFIELD:
+    for my $DynamicFieldConfig ( @IndividualDynamicFields ) {
+
+        # get the html strings form $Param
+        my $DynamicFieldHTML = $Param{DynamicFieldHTML}->{ $DynamicFieldConfig->{Name} };
+
+        # example of dynamic fields order customization
+        $Self->{LayoutObject}->Block(
+            Name => 'DynamicField_' . $DynamicFieldConfig->{Name},
+            Data => {
+                Name  => $DynamicFieldConfig->{Name},
+                Label => $DynamicFieldHTML->{Label},
+                Field => $DynamicFieldHTML->{Field},
+            },
+        );
+    }
+# ---
 
     # get output back
     return $Self->{LayoutObject}->Output( TemplateFile => $Self->{Action}, Data => \%Param );

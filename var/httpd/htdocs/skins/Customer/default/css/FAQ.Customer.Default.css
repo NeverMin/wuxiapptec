@@ -1,0 +1,227 @@
+/**
+ * @project     OTRS (http://www.otrs.org) - Agent Frontend
+ * @copyright   OTRS AG
+ * @license     AGPL (http://www.gnu.org/licenses/agpl.txt)
+ */
+
+/**
+ * @package     Skin "Default"
+ * @section     Default Settings
+ */
+
+@media screen,projection,tv,handheld {
+
+/**
+ * @subsection  LayoutFixedSidebar
+ */
+
+.LayoutFixedSidebar {
+    display: block;
+}
+
+.LayoutFixedSidebar > .ContentColumn {
+    /**
+     * @note    force own Block Formatting Context for nested floats
+     */
+    overflow: hidden;
+}
+
+.LayoutFixedSidebar > .SidebarColumn {
+    overflow-x: hidden;
+}
+
+.LayoutFixedSidebar.SidebarLast > .SidebarColumn {
+    width: 270px;
+    float: right;
+    margin-left: 16px;
+    margin-right: 0;
+}
+
+.RTL .LayoutFixedSidebar.SidebarLast > .SidebarColumn {
+    float: left;
+    margin-left: 0;
+    margin-right: 16px;
+}
+
+.LayoutFixedSidebar.SidebarFirst > .SidebarColumn {
+    width: 270px;
+    float: left;
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+.RTL .LayoutFixedSidebar.SidebarFirst > .SidebarColumn {
+    float: right;
+    margin-left: 10px;
+    margin-right: 0;
+}
+
+/**
+ * @subsection Large SidebarColumn
+ */
+
+.LayoutFixedSidebar.SidebarLast > .SidebarColumn.Large {
+    width: 300px;
+    float: right;
+    margin-left: 16px;
+    margin-right: 0;
+}
+
+/**
+ * @subsection  Customer WidgetSimple
+ */
+
+.WidgetSimple {
+    border: 1px solid #E9E9E9;
+    border-top: 1px solid #FFF;
+    border-bottom: 1px solid #DDD;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 0 3px #EEE;
+    -moz-box-shadow: 0 0 3px #EEE;
+    box-shadow: 0 0 2px #EEE;
+    padding: 0;
+    position: relative;
+    width: auto;
+    z-index: 10;
+    margin-bottom: 10px;
+}
+
+.WidgetSimple .Header {
+    padding: 5px 8px 3px;
+    color: #222;
+    background: #e5e6e6;
+    background: -moz-linear-gradient(top,  #f4f5f5 0%, #e5e6e6 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f4f5f5), color-stop(100%,#e5e6e6));
+    background: -webkit-linear-gradient(top,  #f4f5f5 0%,#e5e6e6 100%);
+    background: -o-linear-gradient(top,  #f4f5f5 0%,#e5e6e6 100%);
+    background: -ms-linear-gradient(top,  #f4f5f5 0%,#e5e6e6 100%);
+    background: linear-gradient(to bottom,  #f4f5f5 0%,#e5e6e6 100%);
+    border-bottom: 1px solid #D6D6D6;
+    text-shadow: 0 1px 0 #FFF;
+    position: relative;
+}
+
+.WidgetSimple .Header h3 {
+    font-weight: bold;
+    float: left;
+}
+
+.RTL .WidgetSimple .Header h3 {
+    float: right;
+}
+
+.WidgetSimple .Header h3 span {
+    font-weight: normal;
+}
+
+.WidgetSimple .Content {
+    height: auto;
+    overflow: hidden;
+    padding: 13px 8px;
+    background: #FFF;
+    border-bottom: 1px solid #E9E9E9;
+}
+
+.WidgetSimple .Pagination {
+    font-size: 11px;
+}
+
+/**
+ * @subsection FAQHeader
+ */
+
+.FAQHeader h2 {
+    margin: 3px 0 0;
+    font-size: 24px;
+    line-height: 24px;
+    position: relative;
+    float: left;
+}
+.RTL .FAQHeader h2 {
+    float: right;
+}
+
+/**
+ * @subsection Overview
+ */
+
+.Overview thead {
+    background: #eeeeee;
+    background: -moz-linear-gradient(top,  #eeeeee 0%, #e0e0e0 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#e0e0e0));
+    background: -webkit-linear-gradient(top,  #eeeeee 0%,#e0e0e0 100%);
+    background: -o-linear-gradient(top,  #eeeeee 0%,#e0e0e0 100%);
+    background: -ms-linear-gradient(top,  #eeeeee 0%,#e0e0e0 100%);
+    background: linear-gradient(to bottom,  #eeeeee 0%,#e0e0e0 100%);
+    display: table-header-group;
+}
+
+.Overview thead th {
+    color: #4B4B4B;
+    font-size: 11px;
+    text-transform: uppercase;
+    background: none;
+    border-top: 1px solid #FFF;
+    border-bottom: 1px solid #BBB;
+    border-right: 1px solid #CCC;
+    vertical-align: bottom;
+    white-space: nowrap;
+}
+
+/**
+ * @subsection FAQMiniList
+ */
+
+ul.FAQMiniList span {
+    display: block;
+    font-size: 10px;
+}
+
+/**
+ * @subsection Category path
+ */
+.FAQPathCategory {
+    padding: 4px 8px 4px;
+    color: #6A6A6A;
+    background: #e5e6e6;
+    background: -moz-linear-gradient(top,  #f4f5f5 0%, #e5e6e6 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f4f5f5), color-stop(100%,#e5e6e6));
+    background: -webkit-linear-gradient(top,  #f4f5f5 0%,#e5e6e6 100%);
+    background: -o-linear-gradient(top,  #f4f5f5 0%,#e5e6e6 100%);
+    background: -ms-linear-gradient(top,  #f4f5f5 0%,#e5e6e6 100%);
+    background: linear-gradient(to bottom,  #f4f5f5 0%,#e5e6e6 100%);
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #E9E9E9 #E9E9E9 #DDDDDD;
+    border-image: none;
+    border-radius: 5px 5px 5px 5px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 0 2px #EEEEEE;
+    position: relative;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.FAQPathCategory.FAQZoom {
+    margin-right: 5px;
+}
+
+.FAQPathCategory h3 {
+    font-weight: bold;
+}
+
+iframe.FAQField {
+    width: 100%;
+    border: 0px;
+    margin: 7px;
+}
+
+}
+
+

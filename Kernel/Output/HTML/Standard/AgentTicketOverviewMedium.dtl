@@ -2,6 +2,8 @@
 # AgentTicketOverviewMedium.dtl - provides HTML Ticket Overview
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Output/HTML/Standard/AgentTicketOverviewMedium.dtl
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -114,15 +116,19 @@
                         <td>
                             <label>$Text{"Queue"}</label><div title="$QData{"Queue"}">$QData{"Queue"}</div>
                         </td>
-                        <td>
-<!-- dtl:block:CustomerIDRW -->
-                            <label>$Text{"CustomerID"}</label><a href="$Config{"CustomerDBLink"}" class="AsPopup PopupType_TicketAction" $Config{"CustomerDBLinkTarget"}>$QData{"CustomerID"}</a>
-<!-- dtl:block:CustomerIDRW -->
-<!-- dtl:block:CustomerIDRO -->
-                            <label>$Text{"CustomerID"}</label>$QData{"CustomerID"}
-<!-- dtl:block:CustomerIDRO -->
-                            <br /><div title="$QData{"CustomerName"}">$QData{"CustomerName"}</div>
-                        </td>
+# ---
+# ITSM
+# ---
+#                        <td>
+#<!-- dtl:block:CustomerIDRW -->
+#                            <label>$Text{"CustomerID"}</label><a href="$Config{"CustomerDBLink"}" class="AsPopup PopupType_TicketAction" $Config{"CustomerDBLinkTarget"}>$QData{"CustomerID"}</a>
+#<!-- dtl:block:CustomerIDRW -->
+#<!-- dtl:block:CustomerIDRO -->
+#                            <label>$Text{"CustomerID"}</label>$QData{"CustomerID"}
+#<!-- dtl:block:CustomerIDRO -->
+#                            <br /><div title="$QData{"CustomerName"}">$QData{"CustomerName"}</div>
+#                        </td>
+# ---
 # example of how to use fixed dynamic field blocks for customizations
 # Note: Field1 is the name of the field and had to be replaced with the actual
 # field name
@@ -143,6 +149,22 @@
                             <div title="$Text{"Service Time"}: $QData{"FirstResponseTimeWorkingTime"}" class="$QData{"FirstResponseTimeClass"}">$QData{"FirstResponseTimeHuman"} / $TimeShort{"$QData{"FirstResponseTimeDestinationDate"}"}</div>
 <!-- dtl:block:FirstResponseTime -->
                         </td>
+# ---
+# ITSM
+# ---
+                        <td>
+                            <label>$Text{"Update Time"}</label>
+<!-- dtl:block:UpdateTime -->
+                            <div title="$Text{"Service Time"}: $QData{"UpdateTimeWorkingTime"}" class="$QData{"UpdateTimeClass"}">$QData{"UpdateTimeHuman"} / $TimeShort{"$QData{"UpdateTimeDestinationDate"}"}</div>
+<!-- dtl:block:UpdateTime -->
+                        </td>
+                        <td>
+                            <label>$Text{"Solution Time"}</label>
+<!-- dtl:block:SolutionTime -->
+                            <div title="$Text{"Service Time"}: $QData{"SolutionTimeWorkingTime"}" class="$QData{"SolutionTimeClass"}">$QData{"SolutionTimeHuman"} / $TimeShort{"$QData{"SolutionTimeDestinationDate"}"}</div>
+<!-- dtl:block:SolutionTime -->
+                        </td>
+# ---
                     </tr>
                     <tr>
                         <td>
@@ -159,6 +181,13 @@
                             <label>$Text{"Type"}</label><div title="$QData{"Type"}">$QData{"Type"}</div>
 <!-- dtl:block:Type -->
                         </td>
+# ---
+# ITSM
+# ---
+                        <td>
+                            <label>$Text{"Priority"}</label><div title="$Text{"$Data{"Priority"}"}">$Text{"$Data{"Priority"}"}</div>
+                        </td>
+# ---
 # example of how to use fixed dynamic field blocks for customizations
 # Note: Field2 is the name of the field and had to be replaced with the actual
 # field name
@@ -173,12 +202,16 @@
 #<!-- dtl:block:DynamicField_Field2Plain -->
 #                        </td>
 #<!-- dtl:block:DynamicField_Field2 -->
-                        <td>
-                            <label>$Text{"Update Time"}</label>
-<!-- dtl:block:UpdateTime -->
-                            <div title="$Text{"Service Time"}: $QData{"UpdateTimeWorkingTime"}" class="$QData{"UpdateTimeClass"}">$QData{"UpdateTimeHuman"} / $TimeShort{"$QData{"UpdateTimeDestinationDate"}"}</div>
-<!-- dtl:block:UpdateTime -->
-                        </td>
+# ---
+# ITSM
+# ---
+#                        <td>
+#                            <label>$Text{"Update Time"}</label>
+#<!-- dtl:block:UpdateTime -->
+#                            <div title="$Text{"Service Time"}: $QData{"UpdateTimeWorkingTime"}" class="$QData{"UpdateTimeClass"}">$QData{"UpdateTimeHuman"} / $TimeShort{"$QData{"UpdateTimeDestinationDate"}"}</div>
+#<!-- dtl:block:UpdateTime -->
+#                        </td>
+# ---
                     </tr>
                     <tr>
                         <td>
@@ -198,6 +231,19 @@
                             <label>$Text{"Service Level Agreement"}</label><div title="$QData{"SLA"}">$QData{"SLA"}</div>
 <!-- dtl:block:SLA -->
                         </td>
+# ---
+# ITSM
+# ---
+                        <td>
+<!-- dtl:block:CustomerIDRW -->
+                            <label>$Text{"CustomerID"}</label><a href="$Config{"CustomerDBLink"}" class="AsPopup PopupType_TicketAction" $Config{"CustomerDBLinkTarget"}>$QData{"CustomerID"}</a>
+<!-- dtl:block:CustomerIDRW -->
+<!-- dtl:block:CustomerIDRO -->
+                            <label>$Text{"CustomerID"}</label>$QData{"CustomerID"}
+<!-- dtl:block:CustomerIDRO -->
+                            <br /><div title="$QData{"CustomerName"}">$QData{"CustomerName"}</div>
+                        </td>
+# ---
 # example of how to use fixed dynamic field blocks for customizations
 # Note: Field3 is the name of the field and had to be replaced with the actual
 # field name
@@ -212,12 +258,16 @@
 #<!-- dtl:block:DynamicField_Field3Plain -->
 #                        </td>
 #<!-- dtl:block:DynamicField_Field3 -->
-                        <td>
-                            <label>$Text{"Solution Time"}</label>
-<!-- dtl:block:SolutionTime -->
-                            <div title="$Text{"Service Time"}: $QData{"SolutionTimeWorkingTime"}" class="$QData{"SolutionTimeClass"}">$QData{"SolutionTimeHuman"} / $TimeShort{"$QData{"SolutionTimeDestinationDate"}"}</div>
-<!-- dtl:block:SolutionTime -->
-                        </td>
+# ---
+# ITSM
+# ---
+#                        <td>
+#                            <label>$Text{"Solution Time"}</label>
+#<!-- dtl:block:SolutionTime -->
+#                            <div title="$Text{"Service Time"}: $QData{"SolutionTimeWorkingTime"}" class="$QData{"SolutionTimeClass"}">$QData{"SolutionTimeHuman"} / $TimeShort{"$QData{"SolutionTimeDestinationDate"}"}</div>
+#<!-- dtl:block:SolutionTime -->
+#                        </td>
+# ---
                     </tr>
                 </tbody>
             </table>

@@ -2,6 +2,8 @@
 # AgentTicketPrint.dtl - provides HTML print view
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Output/HTML/Standard/AgentTicketPrint.dtl
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -24,10 +26,14 @@
                                 <td class="contentkey" width="40%">$Text{"State"}:</td>
                                 <td class="contentvalue" width="60%">$Text{"$Data{"State"}"}</td>
                             </tr>
-                            <tr>
-                                <td class="contentkey">$Text{"Priority"}:</td>
-                                <td class="contentvalue">$Text{"$Data{"Priority"}"}</td>
-                            </tr>
+# ---
+# ITSM
+# ---
+#                            <tr>
+#                                <td class="contentkey">$Text{"Priority"}:</td>
+#                                <td class="contentvalue">$Text{"$Data{"Priority"}"}</td>
+#                            </tr>
+# ---
                             <tr>
                                 <td class="contentkey">$Text{"Queue"}:</td>
                                 <td class="contentvalue">$QData{"Queue"}</td>
@@ -66,6 +72,22 @@
                                 <td class="contentvalue">$QData{"SLA"}</td>
                             </tr>
 <!-- dtl:block:TicketService -->
+# ---
+# ITSM
+# ---
+                            <tr>
+                                <td class="contentkey">$Text{"Criticality"}:</td>
+                                <td class="contentvalue">$Text{"$Data{"Criticality"}"}</td>
+                            </tr>
+                            <tr>
+                                <td class="contentkey">$Text{"Impact"}:</td>
+                                <td class="contentvalue">$Text{"$Data{"Impact"}"}</td>
+                            </tr>
+                            <tr>
+                                <td class="contentkey">$Text{"Priority"}:</td>
+                                <td class="contentvalue">$Text{"$Data{"Priority"}"}</td>
+                            </tr>
+# ---
                         </table>
                     </td>
                     <td width="50%" valign="top">

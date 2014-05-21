@@ -2,6 +2,8 @@
 # AdminService.dtl - provides HTML form for AdminService
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Output/HTML/Standard/AdminService.dtl
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -106,6 +108,21 @@
                             $Data{"ParentOptionStrg"}
                         </div>
                         <div class="Clear"></div>
+# ---
+# ITSM
+# ---
+                        <label for="TypeID">$Text{"Type"}: </label>
+                        <div class="Field">
+                            $Data{"TypeOptionStrg"}
+                        </div>
+                        <div class="Clear"></div>
+
+                        <label for="Criticality">$Text{"Criticality"}: </label>
+                        <div class="Field">
+                            $Data{"CriticalityOptionStrg"}
+                        </div>
+                        <div class="Clear"></div>
+# ---
 
                         <label for="ValidID">$Text{"Validity"}: </label>
                         <div class="Field">

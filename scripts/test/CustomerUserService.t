@@ -2,6 +2,8 @@
 # CustomerUserService.t - CustomerUserService tests
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/scripts/test/CustomerUserService.t
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -59,6 +61,12 @@ my $ServiceID1   = $ServiceObject->ServiceAdd(
     Comment => 'Some Comment',
     ValidID => 1,
     UserID  => 1,
+# ---
+# ITSM
+# ---
+    TypeID      => 1,
+    Criticality => '3 normal',
+# ---
 );
 
 $Self->True(
@@ -73,6 +81,12 @@ my $ServiceID2   = $ServiceObject->ServiceAdd(
     Comment => 'Some Comment',
     ValidID => 1,
     UserID  => 1,
+# ---
+# ITSM
+# ---
+    TypeID      => 1,
+    Criticality => '3 normal',
+# ---
 );
 
 $Self->True(
@@ -469,6 +483,12 @@ my $ServiceUpdate1 = $ServiceObject->ServiceUpdate(
     Name      => $ServiceRand1,
     ValidID   => 2,
     UserID    => 1,
+# ---
+# ITSM
+# ---
+    TypeID      => 1,
+    Criticality => '3 normal',
+# ---
 );
 
 $Self->True(
@@ -482,6 +502,12 @@ my $ServiceUpdate2 = $ServiceObject->ServiceUpdate(
     Name      => $ServiceRand2,
     ValidID   => 2,
     UserID    => 1,
+# ---
+# ITSM
+# ---
+    TypeID      => 1,
+    Criticality => '3 normal',
+# ---
 );
 
 $Self->True(

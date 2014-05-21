@@ -1,0 +1,150 @@
+/**
+ * @project     OTRS (http://www.otrs.org) - Agent Frontend
+ * @copyright   OTRS AG
+ * @license     AGPL (http://www.gnu.org/licenses/agpl.txt)
+ */
+
+/**
+ * @package     Skin "Default"
+ * @section     FAQDetails
+ */
+
+@media screen,projection,tv,handheld {
+
+
+/**
+ * @subsection  Article table body
+ */
+
+.ArticleFAQHeader {
+    margin: 0 8px;
+    padding: 2px 0 7px;
+    font-size: 14px;
+    color: Gray;
+}
+
+.ArticleFAQContent {
+    padding: 11px 12px;
+    line-height: 1.3;
+}
+
+.ArticleFAQContent .FAQVoteForm {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.ArticleFAQContent p.Center {
+    padding-bottom: 10px;
+    margin: 0px 50px;
+    border-bottom: 1px solid #ccc;
+}
+
+.ArticleFAQContent .FAQVoteForm .CallForAction {
+    display: block;
+    margin: 10px auto 0px auto;
+}
+
+.ArticleFAQContent .FAQVoteForm .CallForAction.Hidden {
+    display: none;
+}
+
+.FAQStateName {
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    font-size: 80%;
+    font-style: italic;
+}
+
+fieldset .FAQStateName {
+    position: static;
+}
+
+.RateButtons {
+    text-align: center;
+    display: inline-block;
+}
+
+.RateButtons > li {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.RateButtons > li:first-child,
+.RateButtons > li:last-child {
+    font-weight: bold;
+}
+
+.RateButton {
+    position: relative;
+    text-align: center;
+    display: block;
+    height: 30px;
+    width: 25px;
+    cursor: pointer;
+    float: left;
+    color: #000000;
+    text-align: center;
+}
+
+.RateButton i {
+    display: block;
+    font-size: 16px;
+    width: 100%;
+    text-align: center;
+    color: #999;
+}
+
+.RateButton i.icon-star {
+    display: none;
+}
+
+.RateButton.RateChecked i.icon-star {
+    display: block;
+    color: #E97D34;
+}
+
+.RateButton.RateChecked i.icon-star-empty {
+    display: none;
+}
+
+.RateButton:hover i.icon-star-empty {
+    color: #000;
+}
+
+.RateStar {
+    display: block;
+    height: 16px;
+    float: left;
+    padding-left: 1px;
+    font-size: 10px;
+}
+
+.RateStarText {
+    text-indent:5px;
+}
+
+.RateLabelBefore,
+.RateLabelAfter {
+    color: #333;
+    padding-top: 5px;
+    font-weight: bold;
+}
+
+.RateLabelBefore {
+    float: left;
+    padding-right: 6px;
+}
+
+.RateLabelAfter {
+    float: left;
+    padding-left: 5px;
+}
+
+.ZoomSmallButton{
+    margin-left: 12px;
+}
+
+}

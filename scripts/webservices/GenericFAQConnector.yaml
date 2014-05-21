@@ -1,0 +1,29 @@
+---
+Debugger:
+  DebugThreshold: debug
+  TestMode: 0
+Description: ''
+FrameworkVersion: 3.2.x CVS
+Provider:
+  Operation:
+    LanguageList:
+      Description: List  all availables languages
+      Type: FAQ::LanguageList
+    PublicCategoryList:
+      Description: List all public FAQ categories (with tree information)
+      Type: FAQ::PublicCategoryList
+    PublicFAQSearch:
+      Description: Search for public FAQs
+      Type: FAQ::PublicFAQSearch
+    PublicFAQGet:
+      Description: Retrieve public FAQ entries
+      Type: FAQ::PublicFAQGet
+  Transport:
+    Config:
+      Encoding: UTF-8
+      Endpoint: ''
+      MaxLength: 10000000
+      NameSpace: http://www.otrs.org/FAQConnector/
+      SOAPAction: ''
+    Type: HTTP::SOAP
+RemoteSystem: ''

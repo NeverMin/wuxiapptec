@@ -2,6 +2,8 @@
 # Kernel/Modules/AdminService.pm - admin frontend to manage services
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Modules/AdminService.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -14,6 +16,13 @@ use warnings;
 
 use Kernel::System::Service;
 use Kernel::System::Valid;
+# ---
+# ITSM
+# ---
+use Kernel::System::DynamicField;
+use Kernel::System::GeneralCatalog;
+use Kernel::System::VariableCheck qw(:all);
+# ---
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -30,6 +39,34 @@ sub new {
     }
     $Self->{ServiceObject} = Kernel::System::Service->new(%Param);
     $Self->{ValidObject}   = Kernel::System::Valid->new(%Param);
+# ---
+# ITSM
+# ---
+    $Self->{DynamicFieldObject}   = Kernel::System::DynamicField->new(%Param);
+    $Self->{GeneralCatalogObject} = Kernel::System::GeneralCatalog->new(%Param);
+
+    # get the dynamic field for ITSMCriticality
+    my $DynamicFieldConfigArrayRef = $Self->{DynamicFieldObject}->DynamicFieldListGet(
+        Valid       => 1,
+        ObjectType  => [ 'Ticket' ],
+        FieldFilter => {
+            ITSMCriticality => 1,
+        },
+    );
+
+    # get the dynamic field value for ITSMCriticality
+    my %PossibleValues;
+    DYNAMICFIELD:
+    for my $DynamicFieldConfig ( @{ $DynamicFieldConfigArrayRef } ) {
+        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
+
+        # get PossibleValues
+        $PossibleValues{ $DynamicFieldConfig->{Name} } = $DynamicFieldConfig->{Config}->{PossibleValues} || {};
+    }
+
+    # set the criticality list
+    $Self->{CriticalityList} = $PossibleValues{ITSMCriticality};
+# ---
 
     return $Self;
 }
@@ -65,7 +102,12 @@ sub Run {
 
         # get params
         my %GetParam;
-        for (qw(ServiceID ParentID Name ValidID Comment)) {
+# ---
+# ITSM
+# ---
+#        for (qw(ServiceID ParentID Name ValidID Comment)) {
+        for (qw(ServiceID ParentID Name ValidID Comment TypeID Criticality)) {
+# ---
             $GetParam{$_} = $Self->{ParamObject}->GetParam( Param => $_ ) || '';
         }
 
@@ -291,6 +333,28 @@ sub _MaskNew {
         DisabledBranch => $ServiceData{Name},
         Translation    => 0,
     );
+# ---
+# ITSM
+# ---
+    # generate TypeOptionStrg
+    my $TypeList = $Self->{GeneralCatalogObject}->ItemList(
+        Class => 'ITSM::Service::Type',
+    );
+
+    # build the type dropdown
+    $ServiceData{TypeOptionStrg} = $Self->{LayoutObject}->BuildSelection(
+        Data => $TypeList,
+        Name => 'TypeID',
+        SelectedID => $Param{TypeID} || $ServiceData{TypeID},
+    );
+
+    # build the criticality dropdown
+    $ServiceData{CriticalityOptionStrg} = $Self->{LayoutObject}->BuildSelection(
+        Data       => $Self->{CriticalityList},
+        Name       => 'Criticality',
+        SelectedID => $Param{Criticality} || $ServiceData{Criticality},
+    );
+# ---
 
     # get valid list
     my %ValidList        = $Self->{ValidObject}->ValidList();

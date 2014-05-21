@@ -2,6 +2,8 @@
 # Kernel/System/Service/PreferencesDB.pm - some user functions
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/System/Service/PreferencesDB.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -93,14 +95,18 @@ sub ServicePreferencesGet {
         }
     }
 
-    # check if service preferences are available
-    return if !$Self->{ConfigObject}->Get('ServicePreferences');
-
-    # read cache
-    my $Cache = $Self->{CacheInternalObject}->Get(
-        Key => $Self->{CachePrefix} . $Param{ServiceID},
-    );
-    return %{$Cache} if $Cache;
+# ---
+# ITSM
+# ---
+#    # check if service preferences are available
+#    return if !$Self->{ConfigObject}->Get('ServicePreferences');
+#
+#    # read cache
+#    my $Cache = $Self->{CacheInternalObject}->Get(
+#        Key => $Self->{CachePrefix} . $Param{ServiceID},
+#    );
+#    return %{$Cache} if $Cache;
+# ---
 
     # get preferences
     return if !$Self->{DBObject}->Prepare(

@@ -2,6 +2,8 @@
 # Kernel/System/Service.pm - all service function
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/System/Service.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -16,6 +18,15 @@ use Kernel::System::CheckItem;
 use Kernel::System::Valid;
 use Kernel::System::CacheInternal;
 use Kernel::System::VariableCheck qw(:all);
+# ---
+# ITSM
+# ---
+use Kernel::System::LinkObject;
+use Kernel::System::Time;
+use Kernel::System::DynamicField;
+use Kernel::System::GeneralCatalog;
+use Kernel::System::VariableCheck qw(:all);
+# ---
 
 =head1 NAME
 
@@ -90,6 +101,36 @@ sub new {
         Type => 'Service',
         TTL  => 60 * 60 * 24 * 20,
     );
+# ---
+# ITSM
+# ---
+    $Self->{TimeObject}           = Kernel::System::Time->new( %{$Self} );
+    $Self->{GeneralCatalogObject} = Kernel::System::GeneralCatalog->new( %{$Self} );
+    $Self->{DynamicFieldObject}   = Kernel::System::DynamicField->new( %{$Self} );
+    $Self->{LinkObject}           = Kernel::System::LinkObject->new( %{$Self} );
+
+    # get the dynamic field for ITSMCriticality
+    my $DynamicFieldConfigArrayRef = $Self->{DynamicFieldObject}->DynamicFieldListGet(
+        Valid       => 1,
+        ObjectType  => [ 'Ticket' ],
+        FieldFilter => {
+            ITSMCriticality => 1,
+        },
+    );
+
+    # get the dynamic field value for ITSMCriticality
+    my %PossibleValues;
+    DYNAMICFIELD:
+    for my $DynamicFieldConfig ( @{ $DynamicFieldConfigArrayRef } ) {
+        next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
+
+        # get PossibleValues
+        $PossibleValues{ $DynamicFieldConfig->{Name} } = $DynamicFieldConfig->{Config}->{PossibleValues} || {};
+    }
+
+    # set the criticality list
+    $Self->{CriticalityList} = $PossibleValues{ITSMCriticality};
+# ---
 
     # load generator preferences module
     my $GeneratorModule = $Self->{ConfigObject}->Get('Service::PreferencesModule')
@@ -225,6 +266,16 @@ return a list of services with the complete list of attributes for each service
             ChangeTime => '2011-06-11 17:22:00',
             CreateBy   => 1,
             ChangeBy   => 1,
+# ---
+# ITSM
+# ---
+            TypeID           => 16,
+            Type             => 'Backend',
+            Criticality      => '3 normal',
+            CurInciStateID   => 1,
+            CurInciState     => 'Operational',
+            CurInciStateType => 'operational',
+# ---
         },
         {
             ServiceID  => 2,
@@ -237,6 +288,16 @@ return a list of services with the complete list of attributes for each service
             ChangeTime => '2011-06-11 17:22:00',
             CreateBy   => 1,
             ChangeBy   => 1,
+# ---
+# ITSM
+# ---
+            TypeID           => 16,
+            Type             => 'Backend',
+            Criticality      => '3 normal',
+            CurInciStateID   => 1,
+            CurInciState     => 'Operational',
+            CurInciStateType => 'operational',
+# ---
         },
         # ...
     ];
@@ -267,6 +328,11 @@ sub ServiceListGet {
 
     # create SQL query
     my $SQL = 'SELECT id, name, valid_id, comments, create_time, create_by, change_time, change_by '
+# ---
+# ITSM
+# ---
+        . ", type_id, criticality "
+# ---
         . 'FROM service';
 
     if ( $Param{Valid} ) {
@@ -293,6 +359,12 @@ sub ServiceListGet {
         $ServiceData{CreateBy}   = $Row[5];
         $ServiceData{ChangeTime} = $Row[6];
         $ServiceData{ChangeBy}   = $Row[7];
+# ---
+# ITSM
+# ---
+        $ServiceData{TypeID}      = $Row[8];
+        $ServiceData{Criticality} = $Row[9] || '';
+# ---
 
         # add service data to service list
         push @ServiceList, \%ServiceData;
@@ -315,6 +387,17 @@ sub ServiceListGet {
         my %Preferences = $Self->ServicePreferencesGet(
             ServiceID => $ServiceData->{ServiceID},
         );
+# ---
+# ITSM
+# ---
+        # get current incident state, calculated from related config items and child services
+        my %NewServiceData = $Self->_ServiceGetCurrentIncidentState(
+            ServiceData => $ServiceData,
+            Preferences => \%Preferences,
+            UserID      => $Param{UserID},
+        );
+        $ServiceData = \%NewServiceData;
+# ---
 
         # merge hash
         if (%Preferences) {
@@ -349,6 +432,22 @@ Return
     $ServiceData{CreateBy}
     $ServiceData{ChangeTime}
     $ServiceData{ChangeBy}
+# ---
+# ITSM
+# ---
+    $ServiceData{TypeID}
+    $ServiceData{Type}
+    $ServiceData{Criticality}
+    $ServiceData{CurInciStateID}    # Only if IncidentState is 1
+    $ServiceData{CurInciState}      # Only if IncidentState is 1
+    $ServiceData{CurInciStateType}  # Only if IncidentState is 1
+
+    my %ServiceData = $ServiceObject->ServiceGet(
+        ServiceID     => 123,
+        IncidentState => 1, # Optional, returns CurInciState etc.
+        UserID        => 1,
+    );
+# ---
 
     my %ServiceData = $ServiceObject->ServiceGet(
         ServiceID => 123,
@@ -401,6 +500,13 @@ sub ServiceGet {
 
     # check cached results
     my $CacheKey = 'Cache::ServiceGet::' . $Param{ServiceID};
+# ---
+# ITSM
+# ---
+    # add the IncidentState parameter to the cache key
+    $Param{IncidentState} ||= 0;
+    $CacheKey .= '::IncidentState::' . $Param{IncidentState};
+# ---
     my $Cache = $Self->{CacheInternalObject}->Get( Key => $CacheKey );
     return %{$Cache} if ref $Cache eq 'HASH';
 
@@ -408,6 +514,11 @@ sub ServiceGet {
     $Self->{DBObject}->Prepare(
         SQL =>
             'SELECT id, name, valid_id, comments, create_time, create_by, change_time, change_by '
+# ---
+# ITSM
+# ---
+            . ", type_id, criticality "
+# ---
             . 'FROM service WHERE id = ?',
         Bind  => [ \$Param{ServiceID} ],
         Limit => 1,
@@ -424,6 +535,12 @@ sub ServiceGet {
         $ServiceData{CreateBy}   = $Row[5];
         $ServiceData{ChangeTime} = $Row[6];
         $ServiceData{ChangeBy}   = $Row[7];
+# ---
+# ITSM
+# ---
+        $ServiceData{TypeID}      = $Row[8];
+        $ServiceData{Criticality} = $Row[9] || '';
+# ---
     }
 
     # check service
@@ -451,6 +568,18 @@ sub ServiceGet {
     my %Preferences = $Self->ServicePreferencesGet(
         ServiceID => $Param{ServiceID},
     );
+# ---
+# ITSM
+# ---
+    if ( $Param{IncidentState} ) {
+        # get current incident state, calculated from related config items and child services
+        %ServiceData = $Self->_ServiceGetCurrentIncidentState(
+            ServiceData => \%ServiceData,
+            Preferences => \%Preferences,
+            UserID      => $Param{UserID},
+        );
+    }
+# ---
 
     # merge hash
     if (%Preferences) {
@@ -558,6 +687,12 @@ add a service
         ValidID  => 1,
         Comment  => 'Comment',    # (optional)
         UserID   => 1,
+# ---
+# ITSM
+# ---
+        TypeID      => 2,
+        Criticality => '3 normal',
+# ---
     );
 
 =cut
@@ -566,7 +701,12 @@ sub ServiceAdd {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
-    for my $Argument (qw(Name ValidID UserID)) {
+# ---
+# ITSM
+# ---
+#    for my $Argument (qw(Name ValidID UserID)) {
+    for my $Argument (qw(Name ValidID UserID TypeID Criticality)) {
+# ---
         if ( !$Param{$Argument} ) {
             $Self->{LogObject}->Log(
                 Priority => 'error',
@@ -629,13 +769,25 @@ sub ServiceAdd {
     }
 
     return if !$Self->{DBObject}->Do(
+# ---
+# ITSM
+# ---
+#        SQL => 'INSERT INTO service '
+#            . '(name, valid_id, comments, create_time, create_by, change_time, change_by) '
+#            . 'VALUES (?, ?, ?, current_timestamp, ?, current_timestamp, ?)',
+#        Bind => [
+#            \$Param{FullName}, \$Param{ValidID}, \$Param{Comment},
+#            \$Param{UserID}, \$Param{UserID},
+#        ],
         SQL => 'INSERT INTO service '
-            . '(name, valid_id, comments, create_time, create_by, change_time, change_by) '
-            . 'VALUES (?, ?, ?, current_timestamp, ?, current_timestamp, ?)',
+            . '(name, valid_id, comments, create_time, create_by, change_time, change_by, '
+            . 'type_id, criticality) '
+            . 'VALUES (?, ?, ?, current_timestamp, ?, current_timestamp, ?, ?, ?)',
         Bind => [
             \$Param{FullName}, \$Param{ValidID}, \$Param{Comment},
-            \$Param{UserID}, \$Param{UserID},
+            \$Param{UserID}, \$Param{UserID}, \$Param{TypeID}, \$Param{Criticality},
         ],
+# ---
     );
 
     # get service id
@@ -666,6 +818,12 @@ update an existing service
         ValidID   => 1,
         Comment   => 'Comment',    # (optional)
         UserID    => 1,
+# ---
+# ITSM
+# ---
+        TypeID      => 2,
+        Criticality => '3 normal',
+# ---
     );
 
 =cut
@@ -674,7 +832,12 @@ sub ServiceUpdate {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
-    for my $Argument (qw(ServiceID Name ValidID UserID)) {
+# ---
+# ITSM
+# ---
+#    for my $Argument (qw(ServiceID Name ValidID UserID)) {
+    for my $Argument (qw(ServiceID Name ValidID UserID TypeID Criticality)) {
+# ---
         if ( !$Param{$Argument} ) {
             $Self->{LogObject}->Log(
                 Priority => 'error',
@@ -766,12 +929,23 @@ sub ServiceUpdate {
 
     # update service
     return if !$Self->{DBObject}->Do(
+# ---
+# ITSM
+# ---
+#        SQL => 'UPDATE service SET name = ?, valid_id = ?, comments = ?, '
+#            . ' change_time = current_timestamp, change_by = ? WHERE id = ?',
+#        Bind => [
+#            \$Param{FullName}, \$Param{ValidID}, \$Param{Comment},
+#            \$Param{UserID}, \$Param{ServiceID},
+#        ],
         SQL => 'UPDATE service SET name = ?, valid_id = ?, comments = ?, '
-            . ' change_time = current_timestamp, change_by = ? WHERE id = ?',
+            . ' change_time = current_timestamp, change_by = ?, type_id = ?, criticality = ?'
+            . ' WHERE id = ?',
         Bind => [
             \$Param{FullName}, \$Param{ValidID}, \$Param{Comment},
-            \$Param{UserID}, \$Param{ServiceID},
+            \$Param{UserID}, \$Param{TypeID}, \$Param{Criticality}, \$Param{ServiceID},
         ],
+# ---
     );
 
     # find all childs
@@ -811,6 +985,12 @@ return service ids as an array
         Name   => 'Service Name', # (optional)
         Limit  => 122,            # (optional) default 1000
         UserID => 1,
+# ---
+# ITSM
+# ---
+        TypeIDs       => 2,
+        Criticalities => [ '2 low', '3 normal' ],
+# ---
     );
 
 =cut
@@ -845,6 +1025,31 @@ sub ServiceSearch {
 
         $SQL .= " AND name LIKE '$Param{Name}' ";
     }
+# ---
+# ITSM
+# ---
+    # add type ids
+    if ( $Param{TypeIDs} && ref $Param{TypeIDs} eq 'ARRAY' && @{ $Param{TypeIDs} } ) {
+
+        # quote as integer
+        for my $TypeID ( @{ $Param{TypeIDs} } ) {
+            $TypeID = $Self->{DBObject}->Quote( $TypeID, 'Integer' );
+        }
+
+        $SQL .= "AND type_id IN (" . join(', ', @{ $Param{TypeIDs} }) . ") ";
+    }
+
+    # add criticalities
+    if ($Param{Criticalities} && ref $Param{Criticalities} eq 'ARRAY' && @{ $Param{Criticalities} } ) {
+
+        # quote and wrap in single quotes
+        for my $Criticality ( @{ $Param{Criticalities} } ) {
+            $Criticality = "'" . $Self->{DBObject}->Quote( $Criticality ) . "'";
+        }
+
+        $SQL .= "AND criticality IN (" . join(', ', @{ $Param{Criticalities} }) . ") ";
+    }
+# ---
 
     $SQL .= ' ORDER BY name';
 
@@ -1188,6 +1393,216 @@ sub ServiceParentsGet {
 
     return \@Data;
 }
+# ---
+# ITSM
+# ---
+
+=item _ServiceGetCurrentIncidentState()
+
+Returns a hash with the original service data,
+enhanced with additional service data about the current incident state,
+based on configuration items and other services.
+
+    %ServiceData = $ServiceObject->_ServiceGetCurrentIncidentState(
+        ServiceData => \%ServiceData,
+        Preferences => \%Preferences,
+        UserID      => 1,
+    );
+
+=cut
+
+sub _ServiceGetCurrentIncidentState {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    for my $Argument (qw(ServiceData Preferences UserID)) {
+        if ( !$Param{$Argument} ) {
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Need $Argument!",
+            );
+            return;
+        }
+    }
+
+    # check needed stuff
+    for my $Argument (qw(ServiceData Preferences)) {
+        if ( ref $Param{$Argument} ne 'HASH' ) {
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "$Argument must be a hash reference!",
+            );
+            return;
+        }
+    }
+
+    # make local copies
+    my %ServiceData = %{ $Param{ServiceData} };
+    my %Preferences = %{ $Param{Preferences} };
+
+    # get service type list
+    my $ServiceTypeList = $Self->{GeneralCatalogObject}->ItemList(
+        Class => 'ITSM::Service::Type',
+    );
+    $ServiceData{Type} = $ServiceTypeList->{ $ServiceData{TypeID} } || '';
+
+    # set default incident state type
+    $ServiceData{CurInciStateType} = 'operational';
+
+    # get ITSM module directory
+    my $ConfigItemModule = $Self->{ConfigObject}->Get('Home') . '/Kernel/System/ITSMConfigItem.pm';
+
+    # check if ITSMConfigurationManagement package is installed
+    if ( -e $ConfigItemModule ) {
+
+        # check if a preference setting for CurInciStateTypeFromCIs exists
+        if ( $Preferences{CurInciStateTypeFromCIs} ) {
+
+            # set default incident state type from service preferences 'CurInciStateTypeFromCIs'
+            $ServiceData{CurInciStateType} = $Preferences{CurInciStateTypeFromCIs};
+        }
+
+        # set the preferences setting for CurInciStateTypeFromCIs
+        else {
+
+            # get the incident link type
+            my $LinkType = $Self->{ConfigObject}->Get('ITSM::Core::IncidentLinkType');
+
+            # find all linked config items
+            my %LinkedConfigItemIDs = $Self->{LinkObject}->LinkKeyListWithData(
+                Object1   => 'Service',
+                Key1      => $ServiceData{ServiceID},
+                Object2   => 'ITSMConfigItem',
+                State     => 'Valid',
+                Type      => $LinkType,
+                UserID    => 1,
+            );
+
+            # investigate the current incident state of each config item
+            CONFIGITEMID:
+            for my $ConfigItemID ( sort keys %LinkedConfigItemIDs ) {
+
+                # extract config item data
+                my $ConfigItemData = $LinkedConfigItemIDs{$ConfigItemID};
+
+                next CONFIGITEMID if $ConfigItemData->{CurDeplStateType} ne 'productive';
+                next CONFIGITEMID if $ConfigItemData->{CurInciStateType} eq 'operational';
+
+                # check if service must be set to 'warning'
+                if ( $ConfigItemData->{CurInciStateType} eq 'warning' ) {
+                    $ServiceData{CurInciStateType} = 'warning';
+                    next CONFIGITEMID;
+                }
+
+                # check if service must be set to 'incident'
+                if ( $ConfigItemData->{CurInciStateType} eq 'incident' ) {
+                    $ServiceData{CurInciStateType} = 'incident';
+                    last CONFIGITEMID;
+                }
+            }
+
+            # update the current incident state type from CIs of the service
+            $Self->ServicePreferencesSet(
+                ServiceID => $ServiceData{ServiceID},
+                Key       => 'CurInciStateTypeFromCIs',
+                Value     => $ServiceData{CurInciStateType},
+                UserID    => 1,
+            );
+
+            # set the preferences locally
+            $Preferences{CurInciStateTypeFromCIs} = $ServiceData{CurInciStateType};
+        }
+    }
+
+    # investigate the state of all child services
+    if ( $ServiceData{CurInciStateType} eq 'operational' ) {
+
+        # create the valid string
+        my $ValidIDString = join q{, }, $Self->{ValidObject}->ValidIDsGet();
+
+        # prepare name
+        my $Name = $ServiceData{Name};
+        $Name = $Self->{DBObject}->Quote( $Name, 'Like' );
+
+        # get list of all valid childs
+        $Self->{DBObject}->Prepare(
+            SQL => "SELECT id, name FROM service "
+                . "WHERE name LIKE '" . $Name . "::%' "
+                . "AND valid_id IN (" . $ValidIDString . ")",
+        );
+
+        # find length of childs prefix
+        my $PrefixLength = length "$ServiceData{Name}::";
+
+        # fetch the result
+        my @ChildIDs;
+        ROW:
+        while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+
+            # extract child part
+            my $ChildPart = substr $Row[1], $PrefixLength;
+
+            next ROW if $ChildPart =~ m{ :: }xms;
+
+            push @ChildIDs, $Row[0];
+        }
+
+        SERVICEID:
+        for my $ServiceID ( @ChildIDs ) {
+
+            # get data of child service
+            my %ChildServiceData = $Self->ServiceGet(
+                ServiceID     => $ServiceID,
+                UserID        => $Param{UserID},
+                IncidentState => 1,
+            );
+
+            next SERVICEID if $ChildServiceData{CurInciStateType} eq 'operational';
+
+            $ServiceData{CurInciStateType} = 'warning';
+            last SERVICEID;
+        }
+    }
+
+    # define default incident states
+    my %DefaultInciStates = (
+        operational => 'Operational',
+        warning     => 'Warning',
+        incident    => 'Incident',
+    );
+
+    # get the incident state list of this type
+    my $InciStateList = $Self->{GeneralCatalogObject}->ItemList(
+        Class         => 'ITSM::Core::IncidentState',
+        Preferences   => {
+            Functionality => $ServiceData{CurInciStateType},
+        },
+    );
+
+    my %ReverseInciStateList = reverse %{ $InciStateList };
+    $ServiceData{CurInciStateID}
+        = $ReverseInciStateList{ $DefaultInciStates{ $ServiceData{CurInciStateType} } };
+
+    # fallback if the default incident state is deactivated
+    if ( !$ServiceData{CurInciStateID} ) {
+        my @SortedInciList = sort keys %{ $InciStateList };
+        $ServiceData{CurInciStateID} = $SortedInciList[0];
+    }
+
+    # get incident state functionality
+    my $InciState = $Self->{GeneralCatalogObject}->ItemGet(
+        ItemID => $ServiceData{CurInciStateID},
+    );
+
+    $ServiceData{CurInciState}     = $InciState->{Name};
+    $ServiceData{CurInciStateType} = $InciState->{Functionality};
+
+    %ServiceData = (%ServiceData, %Preferences);
+
+    return %ServiceData;
+}
+
+# ---
 
 1;
 

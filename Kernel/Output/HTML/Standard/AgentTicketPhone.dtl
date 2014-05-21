@@ -2,6 +2,8 @@
 # AgentTicketPhone.dtl - provides HTML form for phone
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Output/HTML/Standard/AgentTicketPhone.dtl
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -34,6 +36,12 @@ $Include{"AgentCustomerSearch"}
                 <input type="hidden" name="Subaction" value="StoreNew"/>
                 <input type="hidden" name="FormID" value="$QData{"FormID"}"/>
                 <input type="hidden" name="ExpandCustomerName" id="ExpandCustomerName" value="0"/>
+# ---
+# ITSM
+# ---
+                <input type="hidden" name="ImpactRC" value="0"/>
+                <input type="hidden" name="PriorityRC" value="0"/>
+# ---
                 <input type="hidden" name="OwnerAll" id="OwnerAll" value="$QData{"OwnerAll"}"/>
                 <input type="hidden" name="ResponsibleAll" id="ResponsibleAll" value="$QData{"ResponsibleAll"}"/>
                 <input type="hidden" name="PreSelectedCustomerUser" id="PreSelectedCustomerUser" value=""/>
@@ -184,11 +192,34 @@ $Include{"AgentCustomerSearch"}
 <script type="text/javascript">//<![CDATA[
     $('#ServiceID').bind('change', function (Event) {
         Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'ServiceID', ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID' $Data{"DynamicFieldNamesStrg"}]);
-    });
+# ---
+# ITSM
+# ---
+#    });
+
+/*global ITSM: true */
+        // show service incident state and signal for the selected service
+        ITSM.Agent.IncidentState.ShowIncidentState({
+            Action: '$Env{"Action"}',
+            ServiceID: $('#ServiceID').val()
+        });
+}).trigger('change');
+# ---
 //]]></script>
 <!--dtl:js_on_document_complete-->
                     </div>
                     <div class="Clear"></div>
+# ---
+# ITSM
+# ---
+                    <label for="ServiceIncidentStateContainer" style="display:none;">$Text{"Service Incident State"}:</label>
+                    <div id="ServiceIncidentStateContainer" class="Value" style="display:none;">
+                        <div class="Flag Small">
+                            <span id="ServiceIncidentStateSignal"></span>
+                        </div>
+                        <span id="ServiceIncidentState">&nbsp;</span>
+                    </div>
+# ---
 <!-- dtl:block:TicketService -->
 
 <!-- dtl:block:TicketServiceMandatory -->
@@ -201,11 +232,34 @@ $Include{"AgentCustomerSearch"}
 <script type="text/javascript">//<![CDATA[
     $('#ServiceID').bind('change', function (Event) {
         Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'ServiceID', ['TypeID', 'Dest', 'NewUserID', 'NewResponsibleID', 'NextStateID', 'PriorityID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID' $Data{"DynamicFieldNamesStrg"}]);
-    });
+# ---
+# ITSM
+# ---
+#    });
+
+/*global ITSM: true */
+        // show service incident state and signal for the selected service
+        ITSM.Agent.IncidentState.ShowIncidentState({
+            Action: '$Env{"Action"}',
+            ServiceID: $('#ServiceID').val()
+        });
+}).trigger('change');
+# ---
 //]]></script>
 <!--dtl:js_on_document_complete-->
                     </div>
                     <div class="Clear"></div>
+# ---
+# ITSM
+# ---
+                    <label for="ServiceIncidentStateContainer" style="display:none;">$Text{"Service Incident State"}:</label>
+                    <div id="ServiceIncidentStateContainer" class="Value" style="display:none;">
+                        <div class="Flag Small">
+                            <span id="ServiceIncidentStateSignal"></span>
+                        </div>
+                        <span id="ServiceIncidentState">&nbsp;</span>
+                    </div>
+# ---
 <!-- dtl:block:TicketServiceMandatory -->
 
 <!-- dtl:block:TicketSLA -->
@@ -313,6 +367,11 @@ $Include{"AgentCustomerSearch"}
 <!-- dtl:block:OptionCustomer -->
                         <a href="#" id="OptionCustomer">[ $Text{"Customer user"} ]</a>
 <!-- dtl:block:OptionCustomer -->
+# ---
+# ITSM
+# ---
+                        <a href="$Env{"Baselink"}Action=AgentLinkObject;Mode=Temporary;SourceObject=Ticket;SourceKey=$LQData{"FormID"};TargetIdentifier=ITSMConfigItem" id="OptionLinkTicket" class="AsPopup">[ $Text{"Link ticket"} ]</a>
+# ---
 
 <!-- OutputFilterHook_TicketOptionsEnd -->
 
@@ -412,6 +471,21 @@ $Include{"RichTextEditor"}
                         <div id="HourError" class="TooltipErrorMessage"><p>$Text{"Date invalid!"}</p></div>
                     </div>
                     <div class="Clear"></div>
+# ---
+# ITSM
+# ---
+
+# show the impact
+<!-- dtl:block:DynamicField_ITSMImpact -->
+                    <div class="Row Row_DynamicField_$QData{"Name"}">
+                        $Data{"Label"}
+                        <div class="Field">
+                            $Data{"Field"}
+                        </div>
+                        <div class="Clear"></div>
+                    </div>
+<!-- dtl:block:DynamicField_ITSMImpact -->
+# ---
 
                     <label for="PriorityID">$Text{"Priority"}:</label>
                     <div class="Field">
@@ -486,6 +560,11 @@ $Include{"RichTextEditor"}
 <script type="text/javascript">//<![CDATA[
     Core.Agent.TicketAction.Init();
     Core.Config.Set('Localization.Delete', "$JSText{"Delete"}");
+# ---
+# ITSM
+# ---
+    $('a.AsPopup').bind('click', function (Event) { Core.UI.Popup.OpenPopup($(this).attr('href'), 'Action'); return false;});
+# ---
 //]]></script>
 <!--dtl:js_on_document_complete-->
 

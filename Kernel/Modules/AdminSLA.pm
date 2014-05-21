@@ -2,6 +2,8 @@
 # Kernel/Modules/AdminSLA.pm - admin frontend to manage slas
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Modules/AdminSLA.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -15,6 +17,11 @@ use warnings;
 use Kernel::System::Service;
 use Kernel::System::SLA;
 use Kernel::System::Valid;
+# ---
+# ITSM
+# ---
+use Kernel::System::GeneralCatalog;
+# ---
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -32,6 +39,11 @@ sub new {
     $Self->{ServiceObject} = Kernel::System::Service->new(%Param);
     $Self->{SLAObject}     = Kernel::System::SLA->new(%Param);
     $Self->{ValidObject}   = Kernel::System::Valid->new(%Param);
+# ---
+# ITSM
+# ---
+    $Self->{GeneralCatalogObject} = Kernel::System::GeneralCatalog->new(%Param);
+# ---
 
     return $Self;
 }
@@ -70,7 +82,12 @@ sub Run {
         # get params
         my %GetParam;
         for my $Param (
-            qw(SLAID Name Calendar FirstResponseTime FirstResponseNotify SolutionTime SolutionNotify UpdateTime UpdateNotify ValidID Comment)
+# ---
+# ITSM
+# ---
+#            qw(SLAID Name Calendar FirstResponseTime FirstResponseNotify SolutionTime SolutionNotify UpdateTime UpdateNotify ValidID Comment)
+            qw(SLAID Name Calendar FirstResponseTime FirstResponseNotify SolutionTime SolutionNotify UpdateTime UpdateNotify ValidID Comment TypeID MinTimeBetweenIncidents)
+# ---
             )
         {
             $GetParam{$Param} = $Self->{ParamObject}->GetParam( Param => $Param ) || '';
@@ -348,6 +365,19 @@ sub _MaskNew {
         TreeView    => ( $ListType eq 'tree' ) ? 1 : 0,
         Max         => 200,
     );
+# ---
+# ITSM
+# ---
+        # generate TypeOptionStrg
+        my $TypeList = $Self->{GeneralCatalogObject}->ItemList(
+            Class => 'ITSM::SLA::Type',
+        );
+        $Param{TypeOptionStrg} = $Self->{LayoutObject}->BuildSelection(
+            Data => $TypeList,
+            Name => 'TypeID',
+            SelectedID => $SLAData{TypeID},
+        );
+# ---
 
     # generate CalendarOptionStrg
     my %CalendarList;

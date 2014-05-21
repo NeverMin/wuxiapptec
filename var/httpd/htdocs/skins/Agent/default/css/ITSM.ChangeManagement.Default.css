@@ -1,0 +1,39 @@
+/**
+ * @project     OTRS (http://www.otrs.org) - Agent Frontend
+ * @copyright   OTRS AG
+ * @license     AGPL (http://www.gnu.org/licenses/agpl.txt)
+ */
+
+/**
+ * @package     Skin "Default"
+ * @section     ITSM default
+ */
+
+@media screen,projection,tv,handheld {
+
+/**
+ * @subsection  Standard Widths
+ */
+
+.W300px {
+    width: 300px;
+}
+
+.SpacingBottomSmall {
+    margin-bottom: 5px;
+}
+
+/**
+ * @subsection  Layout fix
+ */
+/**
+ * @note     Because of some overflow hidden, workorder tooltips are not always
+ *           completely visible.
+ *           The overflow hidden is necessary in the layout and can't be changed.
+ *           This is a workaround to fully show the workorder tooltip.
+ */
+.LayoutFixedSidebar > .ContentColumn {
+    min-height: 450px;
+}
+
+} /* end @media */

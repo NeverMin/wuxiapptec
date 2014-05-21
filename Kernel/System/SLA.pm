@@ -2,6 +2,8 @@
 # Kernel/System/SLA.pm - all sla functions
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/System/SLA.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -14,6 +16,11 @@ use warnings;
 
 use Kernel::System::CheckItem;
 use Kernel::System::Valid;
+# ---
+# ITSM
+# ---
+use Kernel::System::GeneralCatalog;
+# ---
 
 =head1 NAME
 
@@ -82,6 +89,11 @@ sub new {
     }
     $Self->{CheckItemObject} = Kernel::System::CheckItem->new( %{$Self} );
     $Self->{ValidObject}     = Kernel::System::Valid->new( %{$Self} );
+# ---
+# ITSM
+# ---
+    $Self->{GeneralCatalogObject} = Kernel::System::GeneralCatalog->new( %{$Self} );
+# ---
 
     # load generator preferences module
     my $GeneratorModule = $Self->{ConfigObject}->Get('SLA::PreferencesModule')
@@ -187,6 +199,13 @@ Returns:
                                    ],
           'ValidID'             => '1',
           'Comment'             => 'Some Comment',
+# ---
+# ITSM
+# ---
+          'TypeID'                  => '5',
+          'Type'                    => 'Incident',
+          'MinTimeBetweenIncidents' => '4000',  # in minutes
+# ---
           'CreateBy'            => '93',
           'CreateTime'          => '2011-06-16 22:54:54',
           'ChangeBy'            => '93',
@@ -217,6 +236,11 @@ sub SLAGet {
         SQL => 'SELECT id, name, calendar_name, first_response_time, first_response_notify, '
             . 'update_time, update_notify, solution_time, solution_notify, '
             . 'valid_id, comments, create_time, create_by, change_time, change_by '
+# ---
+# ITSM
+# ---
+            . ", type_id, min_time_bet_incidents "
+# ---
             . 'FROM sla WHERE id = ?',
         Bind => [
             \$Param{SLAID},
@@ -242,6 +266,12 @@ sub SLAGet {
         $SLAData{CreateBy}            = $Row[12];
         $SLAData{ChangeTime}          = $Row[13];
         $SLAData{ChangeBy}            = $Row[14];
+# ---
+# ITSM
+# ---
+        $SLAData{TypeID}                  = $Row[15];
+        $SLAData{MinTimeBetweenIncidents} = $Row[16] || 0;
+# ---
     }
 
     # check sla
@@ -252,6 +282,15 @@ sub SLAGet {
         );
         return;
     }
+# ---
+# ITSM
+# ---
+    # get sla type list
+    my $SLATypeList = $Self->{GeneralCatalogObject}->ItemList(
+        Class => 'ITSM::SLA::Type',
+    );
+    $SLAData{Type} = $SLATypeList->{ $SLAData{TypeID} } || '';
+# ---
 
     # get all service ids
     $Self->{DBObject}->Prepare(
@@ -381,6 +420,12 @@ add a sla
         ValidID             => 1,
         Comment             => 'Comment',    # (optional)
         UserID              => 1,
+# ---
+# ITSM
+# ---
+        TypeID                  => 2,
+        MinTimeBetweenIncidents => 3443,     # (optional)
+# ---
     );
 
 =cut
@@ -389,7 +434,12 @@ sub SLAAdd {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
-    for my $Argument (qw(Name ValidID UserID)) {
+# ---
+# ITSM
+# ---
+#    for my $Argument (qw(Name ValidID UserID)) {
+    for my $Argument (qw(Name ValidID UserID TypeID)) {
+# ---
         if ( !$Param{$Argument} ) {
             $Self->{LogObject}->Log(
                 Priority => 'error',
@@ -418,6 +468,11 @@ sub SLAAdd {
     $Param{UpdateNotify}        ||= 0;
     $Param{SolutionTime}        ||= 0;
     $Param{SolutionNotify}      ||= 0;
+# ---
+# ITSM
+# ---
+    $Param{MinTimeBetweenIncidents} ||= 0;
+# ---
 
     # cleanup given params
     for my $Argument (qw(Name Comment)) {
@@ -452,17 +507,33 @@ sub SLAAdd {
 
     # add sla to database
     return if !$Self->{DBObject}->Do(
+# ---
+# ITSM
+# ---
+#        SQL => 'INSERT INTO sla '
+#            . '(name, calendar_name, first_response_time, first_response_notify, '
+#            . 'update_time, update_notify, solution_time, solution_notify, '
+#            . 'valid_id, comments, create_time, create_by, change_time, change_by) VALUES '
+#            . '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp, ?, current_timestamp, ?)',
+#        Bind => [
+#            \$Param{Name},                \$Param{Calendar},   \$Param{FirstResponseTime},
+#            \$Param{FirstResponseNotify}, \$Param{UpdateTime}, \$Param{UpdateNotify},
+#            \$Param{SolutionTime}, \$Param{SolutionNotify}, \$Param{ValidID}, \$Param{Comment},
+#            \$Param{UserID}, \$Param{UserID},
+#        ],
         SQL => 'INSERT INTO sla '
             . '(name, calendar_name, first_response_time, first_response_notify, '
             . 'update_time, update_notify, solution_time, solution_notify, '
-            . 'valid_id, comments, create_time, create_by, change_time, change_by) VALUES '
-            . '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp, ?, current_timestamp, ?)',
+            . 'valid_id, comments, create_time, create_by, change_time, change_by, '
+            . 'type_id, min_time_bet_incidents) VALUES '
+            . '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp, ?, current_timestamp, ?, ?, ?)',
         Bind => [
             \$Param{Name},                \$Param{Calendar},   \$Param{FirstResponseTime},
             \$Param{FirstResponseNotify}, \$Param{UpdateTime}, \$Param{UpdateNotify},
             \$Param{SolutionTime}, \$Param{SolutionNotify}, \$Param{ValidID}, \$Param{Comment},
-            \$Param{UserID}, \$Param{UserID},
+            \$Param{UserID}, \$Param{UserID}, \$Param{TypeID}, \$Param{MinTimeBetweenIncidents},
         ],
+# ---
     );
 
     # get sla id
@@ -524,6 +595,12 @@ update a existing sla
         ValidID             => 1,
         Comment             => 'Comment',    # (optional)
         UserID              => 1,
+# ---
+# ITSM
+# ---
+        TypeID                  => 2,
+        MinTimeBetweenIncidents => 3443,  # (optional)
+# ---
     );
 
 =cut
@@ -532,7 +609,12 @@ sub SLAUpdate {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
-    for my $Argument (qw(SLAID Name ValidID UserID)) {
+# ---
+# ITSM
+# ---
+#    for my $Argument (qw(SLAID Name ValidID UserID)) {
+    for my $Argument (qw(SLAID Name ValidID UserID TypeID)) {
+# ---
         if ( !$Param{$Argument} ) {
             $Self->{LogObject}->Log(
                 Priority => 'error',
@@ -561,6 +643,11 @@ sub SLAUpdate {
     $Param{UpdateNotify}        ||= 0;
     $Param{SolutionTime}        ||= 0;
     $Param{SolutionNotify}      ||= 0;
+# ---
+# ITSM
+# ---
+    $Param{MinTimeBetweenIncidents} ||= 0;
+# ---
 
     # cleanup given params
     for my $Argument (qw(Name Comment)) {
@@ -602,17 +689,33 @@ sub SLAUpdate {
 
     # update service
     return if !$Self->{DBObject}->Do(
+# ---
+# ITSM
+# ---
+#        SQL => 'UPDATE sla SET name = ?, calendar_name = ?, '
+#            . 'first_response_time = ?, first_response_notify = ?, '
+#            . 'update_time = ?, update_notify = ?, solution_time = ?, solution_notify = ?, '
+#            . 'valid_id = ?, comments = ?, change_time = current_timestamp, change_by = ? '
+#            . 'WHERE id = ?',
+#        Bind => [
+#            \$Param{Name},                \$Param{Calendar},   \$Param{FirstResponseTime},
+#            \$Param{FirstResponseNotify}, \$Param{UpdateTime}, \$Param{UpdateNotify},
+#            \$Param{SolutionTime}, \$Param{SolutionNotify}, \$Param{ValidID}, \$Param{Comment},
+#            \$Param{UserID}, \$Param{SLAID},
+#        ],
         SQL => 'UPDATE sla SET name = ?, calendar_name = ?, '
             . 'first_response_time = ?, first_response_notify = ?, '
             . 'update_time = ?, update_notify = ?, solution_time = ?, solution_notify = ?, '
-            . 'valid_id = ?, comments = ?, change_time = current_timestamp, change_by = ? '
+            . 'valid_id = ?, comments = ?, change_time = current_timestamp, change_by = ?, '
+            . 'type_id = ?, min_time_bet_incidents = ? '
             . 'WHERE id = ?',
         Bind => [
             \$Param{Name},                \$Param{Calendar},   \$Param{FirstResponseTime},
             \$Param{FirstResponseNotify}, \$Param{UpdateTime}, \$Param{UpdateNotify},
             \$Param{SolutionTime}, \$Param{SolutionNotify}, \$Param{ValidID}, \$Param{Comment},
-            \$Param{UserID}, \$Param{SLAID},
+            \$Param{UserID}, \$Param{TypeID}, \$Param{MinTimeBetweenIncidents}, \$Param{SLAID},
         ],
+# ---
     );
 
     # remove all existing allocations

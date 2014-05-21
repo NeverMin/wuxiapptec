@@ -2,6 +2,8 @@
 # Kernel/Modules/AgentTicketZoom.pm - to get a closer view
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Modules/AgentTicketZoom.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -23,6 +25,11 @@ use Kernel::System::ProcessManagement::Process;
 use Kernel::System::ProcessManagement::Transition;
 use Kernel::System::ProcessManagement::TransitionAction;
 use Kernel::System::SystemAddress;
+# ---
+# ITSM
+# ---
+use Kernel::System::Service;
+# ---
 
 use Kernel::System::VariableCheck qw(:all);
 
@@ -95,6 +102,11 @@ sub new {
                 || {}
         },
     };
+# ---
+# ITSM
+# ---
+    $Self->{ServiceObject} = Kernel::System::Service->new(%Param);
+# ---
 
     # create additional objects for process management
     $Self->{ActivityObject} = Kernel::System::ProcessManagement::Activity->new(%Param);
@@ -412,6 +424,14 @@ sub Run {
             $Self->{ArticleFilter}->{SenderTypeID} = { map { $_ => 1 } @IDs };
         }
     }
+# ---
+# ITSM
+# ---
+
+    # set criticality and impact
+    $Ticket{Criticality} = $Ticket{DynamicField_ITSMCriticality} || '-';
+    $Ticket{Impact}      = $Ticket{DynamicField_ITSMImpact}      || '-';
+# ---
 
     # return if HTML email
     if ( $Self->{Subaction} eq 'ShowHTMLeMail' ) {
@@ -805,10 +825,40 @@ sub MaskAgentZoom {
 
     # ticket service
     if ( $Self->{ConfigObject}->Get('Ticket::Service') && $Ticket{Service} ) {
+# ---
+# ITSM
+# ---
+#        $Self->{LayoutObject}->Block(
+#            Name => 'Service',
+#            Data => { %Ticket, %AclAction },
+#        );
+
+        # set incident signal
+        my %InciSignals = (
+            operational => 'greenled',
+            warning     => 'yellowled',
+            incident    => 'redled',
+        );
+
+        # get service data
+        my %Service = $Self->{ServiceObject}->ServiceGet(
+            IncidentState => 1,
+            ServiceID     => $Ticket{ServiceID},
+            UserID        => $Self->{UserID},
+        );
+
         $Self->{LayoutObject}->Block(
             Name => 'Service',
-            Data => { %Ticket, %AclAction },
+            Data => {
+                %Ticket,
+                %Service,
+                Name          => $Service{Name},
+                CurInciSignal => $InciSignals{ $Service{CurInciStateType} },
+                State         => $Service{CurInciState},
+                %AclAction,
+            },
         );
+# ---
         if ( $Ticket{SLA} ) {
             $Self->{LayoutObject}->Block(
                 Name => 'SLA',
@@ -1121,6 +1171,23 @@ sub MaskAgentZoom {
         ObjectType  => ['Ticket'],
         FieldFilter => $Self->{DynamicFieldFilter} || {},
     );
+# ---
+# ITSM
+# ---
+    my @IndividualDynamicFields;
+
+    # lookup hash for all ITSM dynamic fields
+    my %ITSMDynamicFields = (
+        ITSMCriticality       => 1,
+        ITSMImpact            => 1,
+        ITSMReviewRequired    => 1,
+        ITSMDecisionResult    => 1,
+        ITSMRepairStartTime   => 1,
+        ITSMRecoveryStartTime => 1,
+        ITSMDecisionDate      => 1,
+        ITSMDueDate           => 1,
+    );
+# ---
 
     # to store dynamic fields to be displayed in the process widget and in the sidebar
     my ( @FieldsWidget, @FieldsSidebar );
@@ -1131,6 +1198,15 @@ sub MaskAgentZoom {
         next DYNAMICFIELD if !IsHashRefWithData($DynamicFieldConfig);
         next DYNAMICFIELD if !defined $Ticket{ 'DynamicField_' . $DynamicFieldConfig->{Name} };
         next DYNAMICFIELD if $Ticket{ 'DynamicField_' . $DynamicFieldConfig->{Name} } eq '';
+# ---
+# ITSM
+# ---
+        # remember dynamic fields that should be displayed individually
+        if ( $ITSMDynamicFields{ $DynamicFieldConfig->{Name} } ) {
+            push @IndividualDynamicFields, $DynamicFieldConfig;
+            next DYNAMICFIELD;
+        }
+# ---
 
         # use translation here to be able to reduce the character length in the template
         my $Label = $Self->{LayoutObject}->{LanguageObject}->Get( $DynamicFieldConfig->{Label} );
@@ -1199,6 +1275,53 @@ sub MaskAgentZoom {
             },
         );
     }
+# ---
+# ITSM
+# ---
+    # cycle trough dynamic fields that should be displayed individually
+    DYNAMICFIELD:
+    for my $DynamicFieldConfig ( @IndividualDynamicFields ) {
+
+        # get print string for this dynamic field
+        my $ValueStrg = $Self->{BackendObject}->DisplayValueRender(
+            DynamicFieldConfig => $DynamicFieldConfig,
+            Value              => $Ticket{ 'DynamicField_' . $DynamicFieldConfig->{Name} },
+            ValueMaxChars      => 25,
+            LayoutObject       => $Self->{LayoutObject},
+        );
+
+        my $Label = $DynamicFieldConfig->{Label};
+
+        # example of dynamic fields order customization
+        $Self->{LayoutObject}->Block(
+            Name => 'TicketDynamicField_' . $DynamicFieldConfig->{Name},
+            Data => {
+                Label => $Label,
+            },
+        );
+
+        if ( $ValueStrg->{Link} ) {
+            $Self->{LayoutObject}->Block(
+                Name => 'TicketDynamicField_' . $DynamicFieldConfig->{Name} . '_Link',
+                Data => {
+                    Value                       => $ValueStrg->{Value},
+                    Title                       => $ValueStrg->{Title},
+                    Link                        => $ValueStrg->{Link},
+                    $DynamicFieldConfig->{Name} => $ValueStrg->{Title},
+                },
+            );
+        }
+        else {
+            $Self->{LayoutObject}->Block(
+                Name => 'TicketDynamicField_' . $DynamicFieldConfig->{Name} . '_Plain',
+                Data => {
+                    Value => $ValueStrg->{Value},
+                    Title => $ValueStrg->{Title},
+                },
+            );
+        }
+    }
+# ---
 
     if ($IsProcessTicket) {
 

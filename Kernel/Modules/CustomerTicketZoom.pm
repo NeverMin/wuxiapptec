@@ -2,6 +2,8 @@
 # Kernel/Modules/CustomerTicketZoom.pm - to get a closer view
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Modules/CustomerTicketZoom.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -174,6 +176,13 @@ sub Run {
     for my $Key (qw(Subject Body StateID PriorityID)) {
         $GetParam{$Key} = $Self->{ParamObject}->GetParam( Param => $Key );
     }
+# ---
+# ITSM
+# ---
+    # set criticality and impact
+    $Ticket{Criticality} = $Ticket{DynamicField_ITSMCriticality} || '-';
+    $Ticket{Impact}      = $Ticket{DynamicField_ITSMImpact}      || '-';
+# ---
 
     # ACL compatibility translation
     my %ACLCompatGetParam;

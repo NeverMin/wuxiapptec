@@ -2,6 +2,8 @@
 # AgentTicketZoom.dtl - provides HTML for AgentTicketZoom.pm
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Output/HTML/Standard/AgentTicketZoom.dtl
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -112,22 +114,63 @@
                         <p class="Value" title="$Text{"$Data{"Lock"}"}">$Text{"$Data{"Lock"}"}</p>
                         <div class="Clear"></div>
 
-                        <label>$Text{"Priority"}:</label>
-                        <p class="Value" title="$Text{"$Data{"Priority"}"}">$Text{"$Data{"Priority"}"}</p>
-                        <div class="Clear"></div>
+# ---
+# ITSM
+# ---
+#                        <label>$Text{"Priority"}:</label>
+#                        <p class="Value" title="$Text{"$Data{"Priority"}"}">$Text{"$Data{"Priority"}"}</p>
+#                        <div class="Clear"></div>
+# ---
 
                         <label>$Text{"Queue"}:</label>
                         <p class="Value" title="$QData{"Queue"}">$QData{"Queue"}</p>
                         <div class="Clear"></div>
+# ---
+# ITSM
+# ---
+<!-- dtl:block:Owner -->
+                        <label>$Text{"Owner"}:</label>
+                        <p class="Value" title="$QData{"UserFullname"} $QData{"OutOfOfficeMessage"} ($QData{"UserLogin"})">$QData{"UserFullname"} $QData{"OutOfOfficeMessage"}</p>
+                        <div class="Clear"></div>
+<!-- dtl:block:Owner -->
+<!-- dtl:block:Responsible -->
+                        <label>$Text{"Responsible"}:</label>
+                        <p class="Value" title="$QData{"UserFullname"} $QData{"OutOfOfficeMessage"} ($QData{"UserLogin"})">$QData{"UserFullname"} $QData{"OutOfOfficeMessage"}</p>
+                        <div class="Clear"></div>
+<!-- dtl:block:Responsible -->
+                    </fieldset>
+                    <fieldset class="TableLike FixedLabelSmall">
+# ---
 
 <!-- dtl:block:Service -->
                         <label>$Text{"Service"}:</label>
-                        <p class="Value" title="$QData{"Service"}">$QData{"Service"}</p>
+# ---
+# ITSM
+# ---
+#                        <p class="Value" title="$QData{"Service"}">$QData{"Service"}</p>
+                        <p class="Value" title="$QData{"Service"}">
+                            <a href="$Env{"Baselink"}Action=AgentITSMServiceZoom;ServiceID=$LQData{"ServiceID"};" target="_blank">$QData{"Service"}</a>
+                        </p>
+                        <label>$Text{"Service Incident State"}:</label>
+                        <div class="Value">
+                            <div class="Flag Small">
+                                <span class="$QData{"CurInciSignal"}" title="$Text{"$Data{"State"}"}"></span>
+                            </div>
+                            <span>$Text{"$Data{"State"}"}</span>
+                        </div>
+# ---
                         <div class="Clear"></div>
 <!-- dtl:block:Service -->
 <!-- dtl:block:SLA -->
                         <label>$Text{"Service Level Agreement"}:</label>
-                        <p class="Value" title="$QData{"SLA"}">$QData{"SLA"}</p>
+# ---
+# ITSM
+# ---
+#                        <p class="Value" title="$QData{"SLA"}">$QData{"SLA"}</p>
+                        <p class="Value" title="$QData{"SLA"}">
+                            <a href="$Env{"Baselink"}Action=AgentITSMSLAZoom;SLAID=$LQData{"SLAID"};" target="_blank">$QData{"SLA"}</a>
+                        </p>
+# ---
                         <div class="Clear"></div>
 <!-- dtl:block:SLA -->
                     </fieldset>
@@ -167,6 +210,109 @@
                         <div class="Clear"></div>
 <!-- dtl:block:SolutionTime -->
                     </fieldset>
+# ---
+# ITSM
+# ---
+                    <fieldset class="TableLike FixedLabelSmall">
+                        <label>$Text{"Criticality"}:</label>
+                        <p class="Value" title="$Text{"$Data{"Criticality"}"}">$Text{"$Data{"Criticality"}"}</p>
+                        <div class="Clear"></div>
+
+                        <label>$Text{"Impact"}:</label>
+                        <p class="Value" title="$Text{"$Data{"Impact"}"}">$Text{"$Data{"Impact"}"}</p>
+                        <div class="Clear"></div>
+
+                        <label>$Text{"Priority"}:</label>
+                        <p class="Value" title="$Text{"$Data{"Priority"}"}">$Text{"$Data{"Priority"}"}</p>
+                        <div class="Clear"></div>
+                    </fieldset>
+
+                    <fieldset class="TableLike FixedLabelSmall Tight">
+
+<!-- dtl:block:TicketDynamicField_ITSMReviewRequired -->
+                        <label>$Text{"$Data{"Label"}"}:</label>
+                        <p class="Value">
+<!-- dtl:block:TicketDynamicField_ITSMReviewRequired_Link -->
+                            <span title="$QData{"Title"}"><a href="$Data{"Link"}" target="_blank">$Data{"Value"}</a></span>
+<!-- dtl:block:TicketDynamicField_ITSMReviewRequired_Link -->
+<!-- dtl:block:TicketDynamicField_ITSMReviewRequired_Plain -->
+                            <span title="$QData{"Title"}">$Data{"Value"}</span>
+<!-- dtl:block:TicketDynamicField_ITSMReviewRequired_Plain -->
+                        </p>
+                        <div class="Clear"></div>
+<!-- dtl:block:TicketDynamicField_ITSMReviewRequired -->
+
+<!-- dtl:block:TicketDynamicField_ITSMDecisionResult -->
+                        <label>$Text{"$Data{"Label"}"}:</label>
+                        <p class="Value">
+<!-- dtl:block:TicketDynamicField_ITSMDecisionResult_Link -->
+                            <span title="$QData{"Title"}"><a href="$Data{"Link"}" target="_blank">$Data{"Value"}</a></span>
+<!-- dtl:block:TicketDynamicField_ITSMDecisionResult_Link -->
+<!-- dtl:block:TicketDynamicField_ITSMDecisionResult_Plain -->
+                            <span title="$QData{"Title"}">$Data{"Value"}</span>
+<!-- dtl:block:TicketDynamicField_ITSMDecisionResult_Plain -->
+                        </p>
+                        <div class="Clear"></div>
+<!-- dtl:block:TicketDynamicField_ITSMDecisionResult -->
+
+
+<!-- dtl:block:TicketDynamicField_ITSMDecisionDate -->
+                        <label>$Text{"$Data{"Label"}"}:</label>
+                        <p class="Value">
+<!-- dtl:block:TicketDynamicField_ITSMDecisionDate_Link -->
+                            <span title="$QData{"Title"}"><a href="$Data{"Link"}" target="_blank">$Data{"Value"}</a></span>
+<!-- dtl:block:TicketDynamicField_ITSMDecisionDate_Link -->
+<!-- dtl:block:TicketDynamicField_ITSMDecisionDate_Plain -->
+                            <span title="$QData{"Title"}">$Data{"Value"}</span>
+<!-- dtl:block:TicketDynamicField_ITSMDecisionDate_Plain -->
+                        </p>
+                        <div class="Clear"></div>
+<!-- dtl:block:TicketDynamicField_ITSMDecisionDate -->
+
+
+<!-- dtl:block:TicketDynamicField_ITSMRepairStartTime -->
+                        <label>$Text{"$Data{"Label"}"}:</label>
+                        <p class="Value">
+<!-- dtl:block:TicketDynamicField_ITSMRepairStartTime_Link -->
+                            <span title="$QData{"Title"}"><a href="$Data{"Link"}" target="_blank">$Data{"Value"}</a></span>
+<!-- dtl:block:TicketDynamicField_ITSMRepairStartTime_Link -->
+<!-- dtl:block:TicketDynamicField_ITSMRepairStartTime_Plain -->
+                            <span title="$QData{"Title"}">$Data{"Value"}</span>
+<!-- dtl:block:TicketDynamicField_ITSMRepairStartTime_Plain -->
+                        </p>
+                        <div class="Clear"></div>
+<!-- dtl:block:TicketDynamicField_ITSMRepairStartTime -->
+
+
+<!-- dtl:block:TicketDynamicField_ITSMRecoveryStartTime -->
+                        <label>$Text{"$Data{"Label"}"}:</label>
+                        <p class="Value">
+<!-- dtl:block:TicketDynamicField_ITSMRecoveryStartTime_Link -->
+                            <span title="$QData{"Title"}"><a href="$Data{"Link"}" target="_blank">$Data{"Value"}</a></span>
+<!-- dtl:block:TicketDynamicField_ITSMRecoveryStartTime_Link -->
+<!-- dtl:block:TicketDynamicField_ITSMRecoveryStartTime_Plain -->
+                            <span title="$QData{"Title"}">$Data{"Value"}</span>
+<!-- dtl:block:TicketDynamicField_ITSMRecoveryStartTime_Plain -->
+                        </p>
+                        <div class="Clear"></div>
+<!-- dtl:block:TicketDynamicField_ITSMRecoveryStartTime -->
+
+
+<!-- dtl:block:TicketDynamicField_ITSMDueDate -->
+                        <label>$Text{"$Data{"Label"}"}:</label>
+                        <p class="Value">
+<!-- dtl:block:TicketDynamicField_ITSMDueDate_Link -->
+                            <span title="$QData{"Title"}"><a href="$Data{"Link"}" target="_blank">$Data{"Value"}</a></span>
+<!-- dtl:block:TicketDynamicField_ITSMDueDate_Link -->
+<!-- dtl:block:TicketDynamicField_ITSMDueDate_Plain -->
+                            <span title="$QData{"Title"}">$Data{"Value"}</span>
+<!-- dtl:block:TicketDynamicField_ITSMDueDate_Plain -->
+                        </p>
+                        <div class="Clear"></div>
+<!-- dtl:block:TicketDynamicField_ITSMDueDate -->
+
+                    </fieldset>
+# ---
 
                     <fieldset class="TableLike FixedLabelSmall Narrow">
                         <label>$Text{"CustomerID"}:</label>
@@ -194,18 +340,22 @@
                         </p>
                         <div class="Clear"></div>
 <!-- dtl:block:PendingUntil -->
-<!-- dtl:block:Owner -->
-                        <label>$Text{"Owner"}:</label>
-                        <p class="Value" title="$QData{"UserFullname"} $QData{"OutOfOfficeMessage"} ($QData{"UserLogin"})">$QData{"UserFullname"} $QData{"OutOfOfficeMessage"}</p>
-                        <div class="Clear"></div>
-
-<!-- dtl:block:Owner -->
-<!-- dtl:block:Responsible -->
-                        <label>$Text{"Responsible"}:</label>
-                        <p class="Value" title="$QData{"UserFullname"} $QData{"OutOfOfficeMessage"} ($QData{"UserLogin"})">$QData{"UserFullname"} $QData{"OutOfOfficeMessage"}</p>
-                        <div class="Clear"></div>
-
-<!-- dtl:block:Responsible -->
+# ---
+# ITSM
+# ---
+#<!-- dtl:block:Owner -->
+#                        <label>$Text{"Owner"}:</label>
+#                        <p class="Value" title="$QData{"UserFullname"} $QData{"OutOfOfficeMessage"} ($QData{"UserLogin"})">$QData{"UserFullname"} $QData{"OutOfOfficeMessage"}</p>
+#                        <div class="Clear"></div>
+#
+#<!-- dtl:block:Owner -->
+#<!-- dtl:block:Responsible -->
+#                        <label>$Text{"Responsible"}:</label>
+#                        <p class="Value" title="$QData{"UserFullname"} $QData{"OutOfOfficeMessage"} ($QData{"UserLogin"})">$QData{"UserFullname"} $QData{"OutOfOfficeMessage"}</p>
+#                        <div class="Clear"></div>
+#
+#<!-- dtl:block:Responsible -->
+# ---
                     </fieldset>
 
 <!-- dtl:block:ProcessData -->

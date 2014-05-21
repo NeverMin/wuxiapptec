@@ -2,6 +2,8 @@
 # Kernel/Modules/AgentTicketPrint.pm - print layout for agent interface
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Modules/AgentTicketPrint.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -117,8 +119,20 @@ sub Run {
     # get content
     my %Ticket = $Self->{TicketObject}->TicketGet(
         TicketID => $Self->{TicketID},
+# ---
+# ITSM
+# ---
+        DynamicFields => 1,
+# ---
         UserID   => $Self->{UserID},
     );
+# ---
+# ITSM
+# ---
+    # set criticality and impact
+    $Ticket{Criticality} = $Ticket{DynamicField_ITSMCriticality} || '-';
+    $Ticket{Impact}      = $Ticket{DynamicField_ITSMImpact}      || '-';
+# ---
     my @ArticleBox = $Self->{TicketObject}->ArticleContentIndex(
         TicketID                   => $Self->{TicketID},
         StripPlainBodyAsAttachment => 1,
@@ -402,10 +416,14 @@ sub _PDFOutputTicketInfos {
             Key   => $Self->{LayoutObject}->{LanguageObject}->Get('State'),
             Value => $Self->{LayoutObject}->{LanguageObject}->Get( $Ticket{State} ),
         },
-        {
-            Key   => $Self->{LayoutObject}->{LanguageObject}->Get('Priority'),
-            Value => $Self->{LayoutObject}->{LanguageObject}->Get( $Ticket{Priority} ),
-        },
+# ---
+# ITSM
+# ---
+#        {
+#            Key   => $Self->{LayoutObject}->{LanguageObject}->Get('Priority'),
+#            Value => $Self->{LayoutObject}->{LanguageObject}->Get( $Ticket{Priority} ),
+#        },
+# ---
         {
             Key   => $Self->{LayoutObject}->{LanguageObject}->Get('Queue'),
             Value => $Ticket{Queue},
@@ -464,6 +482,25 @@ sub _PDFOutputTicketInfos {
         };
         push( @{$TableLeft}, $RowSLA );
     }
+# ---
+# ITSM
+# ---
+    my $TableLeftExtended = [
+        {
+            Key => $Self->{LayoutObject}->{LanguageObject}->Get('Criticality') . ':',
+            Value => $Self->{LayoutObject}->{LanguageObject}->Get($Ticket{Criticality}),
+        },
+        {
+            Key => $Self->{LayoutObject}->{LanguageObject}->Get('Impact') . ':',
+            Value => $Self->{LayoutObject}->{LanguageObject}->Get($Ticket{Impact}),
+        },
+        {
+            Key => $Self->{LayoutObject}->{LanguageObject}->Get('Priority') . ':',
+            Value => $Self->{LayoutObject}->{LanguageObject}->Get($Ticket{Priority}),
+        },
+    ];
+    push @{$TableLeft}, @{$TableLeftExtended};
+# ---
 
     # create right table
     my $TableRight = [

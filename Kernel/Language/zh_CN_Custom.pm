@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Language::xx_Custom;
+package Kernel::Language::zh_CN_Custom;
 
 use strict;
 use warnings;
@@ -18,8 +18,7 @@ sub Data {
     # $$START$$
 
     # own translations
-    #$Self->{Translation}->{'Lock'}   = 'Lala';
-    #$Self->{Translation}->{'Unlock'} = 'Lulu';
+    $Self->{Translation}->{'CustomerID'} = '工号';
 
     # or a other syntax would be
     #    $Self->{Translation} = {

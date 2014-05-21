@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<otrs_config version="1.0" init="Application">
+    <ConfigItem Name="PreApplicationModule###Znuny4OTRSRepo" Required="0" Valid="1">
+        <Description Translatable="1">Defines a module to enable Znuny4OTRS repo informations.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Agent</SubGroup>
+        <Setting>
+            <String Regex="">Kernel::Modules::Znuny4OTRSRepo</String>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Znuny4OTRSPrivatRepos" Required="0" Valid="0">
+        <Description Translatable="1">Define private addon repos.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="API-KEY">My Addons</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Znuny4OTRSRepoType" Required="1" Valid="1">
+        <Description Translatable="1">Access repos via http or https.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Option SelectedID="http">
+                <Item Key="https">https</Item>
+                <Item Key="http">http</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Znuny4OTRSRepoDisable" Required="1" Valid="1">
+        <Description Translatable="1">Disable online repos, e. g. for production system where new direct access to repos is needed.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Option SelectedID="">
+                <Item Key="1">Disable Online Repos</Item>
+                <Item Key="">Enable Online Repos</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::Output::FilterElementPost###OutputFilterZnunyVerify" Required="0" Valid="0">
+        <Description Translatable="1">This configuration registers a Output pre-filter to extend package verification.</Description>
+        <Group>Framework</Group>
+        <SubGroup>OutputFilter</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::OutputFilterZnunyVerify</Item>
+                <Item Key="Templates">
+                    <Hash>
+                        <Item Key="AdminPackageManager">1</Item>
+                    </Hash>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::Module###AdminRegistration" Required="0" Valid="0">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Admin::ModuleRegistration</SubGroup>
+        <Setting>
+            <FrontendModuleReg>
+                <Group>admin</Group>
+                <Description>Admin</Description>
+                <Title Translatable="1">System Registration</Title>
+                <NavBarName>Admin</NavBarName>
+                <NavBarModule>
+                    <Module>Kernel::Output::HTML::NavBarModuleAdmin</Module>
+                    <Name Translatable="1">System Registration</Name>
+                    <Description Translatable="1">Manage system registration.</Description>
+                    <Block>System</Block>
+                    <Prio>350</Prio>
+                </NavBarModule>
+                <Loader>
+                    <CSS>Core.Agent.Admin.Registration.css</CSS>
+                </Loader>
+            </FrontendModuleReg>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Package::ShowFeatureAddons" Required="0" Valid="0" ConfigLevel="200">
+        <Description Translatable="1">Toggles display of OTRS FeatureAddons list in PackageManager.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Package</SubGroup>
+        <Setting>
+            <Option SelectedID="1">
+                <Item Key="0">No</Item>
+                <Item Key="1">Yes</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
+</otrs_config>

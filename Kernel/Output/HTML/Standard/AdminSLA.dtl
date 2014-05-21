@@ -2,6 +2,8 @@
 # AdminSLA.dtl - provides HTML form for AdminSLA
 # Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/0f77f00d00ab28ff64bf39a42d3dfe43e249d668/Kernel/Output/HTML/Standard/AdminSLA.dtl
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -108,6 +110,15 @@
                             <div id="NameServerError" class="TooltipErrorMessage"><p>$Text{"This field is required."}</p></div>
                         </div>
                         <div class="Clear"></div>
+# ---
+# ITSM
+# ---
+                        <label for="ServiceIDs">$Text{"Type"}:</label>
+                        <div class="Field">
+                            $Data{"TypeOptionStrg"}
+                        </div>
+                        <div class="Clear"></div>
+# ---
 
                         <label for="ServiceIDs">$Text{"Service"}:</label>
                         <div class="Field">
@@ -153,6 +164,16 @@
                             </p>
                         </div>
                         <div class="Clear"></div>
+# ---
+# ITSM
+# ---
+                        <label for="MinTimeBetweenIncidents">$Text{"Minimum Time Between Incidents"} ($Text{"minutes"}):</label>
+                        <div class="Field">
+                            <input type="text" name="MinTimeBetweenIncidents" id="MinTimeBetweenIncidents" value="$QData{"MinTimeBetweenIncidents"}" class="W25pc Validate_Number" maxlength="15"/>
+                            <div id="MinTimeBetweenIncidentsError" class="TooltipErrorMessage"><p>$Text{"Please write only numbers!"}</p></div>
+                        </div>
+                        <div class="Clear"></div>
+# ---
 
                         <label for="ValidID">$Text{"Validity"}:</label>
                         <div class="Field">
