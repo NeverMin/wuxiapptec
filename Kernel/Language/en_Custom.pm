@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Language::zh_CN_Custom;
+package Kernel::Language::en_Custom;
 
 use strict;
 use warnings;
@@ -19,8 +19,8 @@ sub Data {
 
       $Self->{Translation} = {
             %{$Self->{Translation}},
-            'CustomerID' => '工号',
-            'Your User Name' => '用户名为邮箱登录名，如邮箱为 abc@wuxiapptec.com，那么用户名为 abc',
+#            'CustomerID' => '',
+            'Your User Name' => 'User Name is your E-mail login name, e.g.: your email address is ABC@wuxiapptec.com, ABC is your User Name',
         };
 
     # $$STOP$$
