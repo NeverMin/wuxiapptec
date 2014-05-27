@@ -20,8 +20,8 @@ sub Data {
       $Self->{Translation} = {
             %{$Self->{Translation}},
             'Dashboard' => '信息中心',
-            'CustomerID' => '工号',
-            'Your User Name' => '用户名为邮箱登录名，如邮箱为 abc@wuxiapptec.com，那么用户名为 abc',
+            'Zip' => '工号',
+            'Tip: Your User Name' => '用户名为邮箱登录名，如邮箱为 abc@wuxiapptec.com，那么用户名为 abc',
             'Powered by' => ' ',
         };
 

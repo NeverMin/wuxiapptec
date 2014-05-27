@@ -19,8 +19,8 @@ sub Data {
 
       $Self->{Translation} = {
             %{$Self->{Translation}},
-#            'CustomerID' => '',
-            'Your User Name' => 'User Name is your E-mail login name, e.g.: your email address is ABC@wuxiapptec.com, ABC is your User Name',
+            'Zip' => 'EMPNO',
+            'Tip: Your User Name' => 'User Name is your E-mail login name, e.g.: your email address is ABC@wuxiapptec.com, ABC is your User Name',
         };
 
     # $$STOP$$

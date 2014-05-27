@@ -9,7 +9,7 @@
 
 <div id="Footer" class="ARIARoleContentinfo">
 <!-- dtl:block:Banner -->
-    <a href="http://otrs.org/" target="_blank">$Text{"Powered by"} $Config{"Product"} $Config{"Version"}</a>
+    <a href="http://otrs.org.cn/" target="_blank">$Text{"Powered by"} $Config{"Product"} $Config{"Version"}</a>
 <!-- dtl:block:Banner -->
     <div class="Clear"></div>
 </div>
