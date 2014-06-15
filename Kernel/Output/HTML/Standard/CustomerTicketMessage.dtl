@@ -22,10 +22,12 @@
                     <input title="Ticket#" type="text" name="TicketNumber" size="30" value="$QData{"TicketNumber"}" />
                     -->
                     <label for="TypeID" class="Mandatory"><span class="Marker">*</span>$Text{"Tip: Type"}:</label>
+                    <select>
                     <option value="2">ShangHai</option>
                     <option value="7">SuZhou</option>
                     <option value="3">TianJin</option>
                     <option value="5">WuXi</option>
+                    </select>
                     <div id="TypeIDError" class="TooltipErrorMessage" ><p>$Text{"This field is required."}</p></div>
                     <div id="TypeIDServerError" class="TooltipErrorMessage NoJavaScriptMessage$QData{"TypeIDInvalid"}" ><p>$Text{"This field is required."}</p></div>
                     <div class="Clear"></div>
