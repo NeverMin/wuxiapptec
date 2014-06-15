@@ -25,6 +25,8 @@ sub Data {
             'Tip: Your User Name' => '用户名为邮箱登录名，如邮箱为 abc@wuxiapptec.com，那么用户名为 abc',
             'Powered by' => ' ',
             'Tip: Type' => '地点',
+            'Tip: Subject' => '标题',
+            'Tip: Text' => '描述',
         };
 
     # $$STOP$$

@@ -129,7 +129,7 @@
                 <div>
                     <label for="Subject" class="Mandatory">
                         <span class="Marker">*</span>
-                        $Text{"Subject"}:
+                        $Text{"Tip: Subject"}:
                     </label>
                     <input title="Subject" type="text" id="Subject" name="Subject" value="$QData{"Subject"}" class="Validate_Required $QData{"SubjectInvalid"}" />
                     <div id="SubjectError" class="TooltipErrorMessage" ><p>$Text{"This field is required."}</p></div>
@@ -139,7 +139,7 @@
                 <div class="RichTextHolder">
                     <label for="RichText" class="Mandatory">
                         <span class="Marker">*</span>
-                        $Text{"Text"}:
+                        $Text{"Tip: Text"}:
                     </label>
 <!-- dtl:block:RichText -->
 $Include{"CustomerRichTextEditor"}
