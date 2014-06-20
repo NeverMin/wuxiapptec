@@ -22,7 +22,7 @@ sub Data {
             'Dashboard' => '信息中心',
             #'Zip' => '工号',
             'CustomerID' => '工号',
-            'Tip: Your User Name' => '用户名为邮箱登录名，如邮箱为 abc@wuxiapptec.com，那么用户名为 abc',
+            'Tip: Your User Name' => '用户名是您开机登陆 windows 系统的用户名, 密码是您开机登陆 windows 系统的密码!',
             'Powered by' => ' ',
             'Tip: Type' => '地点',
             'Tip: Subject' => '标题',
