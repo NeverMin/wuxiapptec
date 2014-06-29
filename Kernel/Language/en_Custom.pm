@@ -21,7 +21,7 @@ sub Data {
             %{$Self->{Translation}},
             #'Zip' => 'EMPNO',
             'CustomerID' => 'EMPNO',
-            'Tip: Your User Name' => 'User Name is your E-mail login name, e.g.: your email address is ABC@wuxiapptec.com, ABC is your User Name',
+            'Tip: Your User Name' => 'User name is the one used to login windows, and the password as well. e.g. : abc_de',
             'Powered by' => ' ',
             'Tip: Type' => 'Location',
             'Tip: Subject' => 'Title',
