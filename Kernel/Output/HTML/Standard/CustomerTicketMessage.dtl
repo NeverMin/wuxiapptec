@@ -23,14 +23,15 @@
                     -->
                     <label for="TypeID" class="Mandatory"><span class="Marker">*</span>$Text{"Tip: Type"}:</label>
                     <select class="Validate_Required " id="TypeID" name="TypeID">
-                    <option value="2">WGQ</option>
-                    <option value="3">TianJin</option>
-                    <option value="5">WuXi</option>
-                    <option value="7">SuZhou</option>
-                    <option value="8">BeiJing</option>
-                    <option value="9">JinShan</option>
-                    <option value="11">ChangZhou</option>
-                    <option value="10">WuHan</option>
+                    <option value="2">WuXiAPP$Text{"WGQ"}</option>
+                    <option value="3">WuXiAPP$Text{"TianJin"}</option>
+                    <option value="5">WuXiAPP$Text{"WuXi"}</option>
+                    <option value="7">WuXiAPP$Text{"SuZhou"}</option>
+                    <option value="8">WuXiAPP$Text{"BeiJing"}</option>
+                    <option value="9">WuXiAPP$Text{"JinShan"}</option>
+                    <option value="10">WuXiAPP$Text{"WuHan"}</option>
+                    <option value="11">WuXiAPP$Text{"ChangZhou"}</option>
+                    <option value="11">Abgent$Text{"SuZhou"}</option>
                     </select>
                     <div id="TypeIDError" class="TooltipErrorMessage" ><p>$Text{"This field is required."}</p></div>
                     <div id="TypeIDServerError" class="TooltipErrorMessage NoJavaScriptMessage$QData{"TypeIDInvalid"}" ><p>$Text{"This field is required."}</p></div>

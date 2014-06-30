@@ -28,6 +28,14 @@ sub Data {
             'Tip: Subject' => '标题',
             'Tip: Text' => '描述',
             'Tip: Help' => '需要帮助',
+            'WGQ' => '外高桥',
+            'TianJin' => '天津',
+            'WuXi' => '无锡',
+            'SuZhou' => '苏州',
+            'BeiJing' => '北京',
+            'JinShan' => '金山',
+            'ChangZhou' => '常州',
+            'WuHan' => '武汉',
         };
 
     # $$STOP$$
