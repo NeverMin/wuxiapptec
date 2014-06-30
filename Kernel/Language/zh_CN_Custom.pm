@@ -27,6 +27,7 @@ sub Data {
             'Tip: Type' => '地点',
             'Tip: Subject' => '标题',
             'Tip: Text' => '描述',
+            'Tip: Help' => '需要帮助',
         };
 
     # $$STOP$$

@@ -26,6 +26,7 @@ sub Data {
             'Tip: Type' => 'Location',
             'Tip: Subject' => 'Title',
             'Tip: Text' => 'Description',
+            'Tip: Help' => 'Need help',
         };
 
     # $$STOP$$
