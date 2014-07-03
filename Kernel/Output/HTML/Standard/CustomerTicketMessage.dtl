@@ -23,15 +23,20 @@
                     -->
                     <label for="TypeID" class="Mandatory"><span class="Marker">*</span>$Text{"Tip: Type"}:</label>
                     <select class="Validate_Required " id="TypeID" name="TypeID">
-                    <option value="2">WuXiAPP($Text{"WGQ"})</option>
-                    <option value="3">WuXiAPP($Text{"TianJin"})</option>
-                    <option value="5">WuXiAPP($Text{"WuXi"})</option>
-                    <option value="7">WuXiAPP($Text{"SuZhou"})</option>
-                    <option value="8">WuXiAPP($Text{"BeiJing"})</option>
-                    <option value="9">WuXiAPP($Text{"JinShan"})</option>
-                    <option value="10">WuXiAPP($Text{"WuHan"})</option>
-                    <option value="11">WuXiAPP($Text{"ChangZhou"})</option>
+                    <option value="2">WuXiAppTec($Text{"WGQ"})</option>
+                    <option value="3">WuXiAppTec($Text{"TianJin"})</option>
+                    <option value="5">WuXiAppTec($Text{"WuXi"})</option>
+                    <option value="7">WuXiAppTec($Text{"SuZhou"})</option>
+                    <option value="8">WuXiAppTec($Text{"BeiJing"})</option>
+                    <option value="9">WuXiAppTec($Text{"JinShan"})</option>
+                    <option value="10">WuXiAppTec($Text{"WuHan"})</option>
+                    <option value="11">WuXiAppTec($Text{"ChangZhou"})</option>
                     <option value="12">Abgent($Text{"SuZhou"})</option>
+                    <option value="14">WuXiPRA($Text{"WuHan"})</option>
+                    <option value="15">WuXiPRA($Text{"BeiJing"})</option>
+                    <option value="16">WuXiPRA($Text{"ShangHai"})</option>
+                    <option value="17">WuXiPRA($Text{"GuangZhou"})</option>
+                    <option value="18">WuXiPRA($Text{"HongKong"})</option>
                     </select>
                     <div id="TypeIDError" class="TooltipErrorMessage" ><p>$Text{"This field is required."}</p></div>
                     <div id="TypeIDServerError" class="TooltipErrorMessage NoJavaScriptMessage$QData{"TypeIDInvalid"}" ><p>$Text{"This field is required."}</p></div>

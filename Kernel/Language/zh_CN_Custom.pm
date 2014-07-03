@@ -36,6 +36,9 @@ sub Data {
             'JinShan' => '金山',
             'ChangZhou' => '常州',
             'WuHan' => '武汉',
+            'HongKong' => '香港',
+            'GuangZhou' => '广州',
+            'ShangHai' => '上海',
         };
 
     # $$STOP$$
