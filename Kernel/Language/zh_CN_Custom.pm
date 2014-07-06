@@ -20,7 +20,6 @@ sub Data {
       $Self->{Translation} = {
             %{$Self->{Translation}},
             'Dashboard' => '信息中心',
-            #'Zip' => '工号',
             'CustomerID' => '工号',
             'Tip: Your User Name' => '用户名是您开机登陆 windows 系统的用户名, 密码是您开机登陆 windows 系统的密码!',
             'Powered by' => ' ',
@@ -39,6 +38,10 @@ sub Data {
             'HongKong' => '香港',
             'GuangZhou' => '广州',
             'ShangHai' => '上海',
+            'Title' => '职位',
+            'Street' => '地址',
+            'Address' => '办公室',
+            'Comment' => '部门',
         };
 
     # $$STOP$$
