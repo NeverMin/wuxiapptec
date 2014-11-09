@@ -48,7 +48,7 @@ $Include{"AgentCustomerSearch"}
                 <input type="hidden" name="SelectedCustomerUser" id="SelectedCustomerUser" value="$QData{"CustomerUser"}"/>
                 <input type="hidden" name="TicketID" value="$QData{"TicketID"}"/>
                 <input type="hidden" name="LinkTicketID" value="$QData{"LinkTicketID"}"/>
-
+                <input type="hidden" name="NewResponsibleID" value="$QEnv{"UserID"}">
                 <fieldset class="TableLike">
 
 # example template for customizations, see hidden form at the end of the file
@@ -318,29 +318,29 @@ $Include{"AgentCustomerSearch"}
                     <div class="Clear"></div>
 <!-- dtl:block:OwnerSelection -->
 
-<!-- dtl:block:ResponsibleSelection -->
-                    <label for="NewResponsibleID">$Text{"Responsible"}:</label>
-                    <div class="Field">
-                        $Data{"ResponsibleOptionStrg"}
-                        <a href="#" id="ResponsibleSelectionGetAll" class="GetAllAJAX" title="$Text{"Get all"}">$Text{"Get all"}</a>
-<!--dtl:js_on_document_complete-->
-<script type="text/javascript">//<![CDATA[
-    $('#ResponsibleSelectionGetAll').bind('click', function (Event) {
-        $('#ResponsibleAll').val('1'); // Needed? Why?
-        Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'ResponsibleAll', ['NewResponsibleID'], function() {
-            $('#NewResponsibleID').focus();
-        });
-        return false;
-    });
-
-    $('#NewResponsibleID').bind('change', function (Event) {
-        Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'NewResponsibleID', [ 'TypeID', 'Dest', 'NewUserID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID' $Data{"DynamicFieldNamesStrg"}]);
-    });
-//]]></script>
-<!--dtl:js_on_document_complete-->
-                    </div>
-                    <div class="Clear"></div>
-<!-- dtl:block:ResponsibleSelection -->
+#<!-- dtl:block:ResponsibleSelection -->
+#                    <label for="NewResponsibleID">$Text{"Responsible"}:</label>
+#                    <div class="Field">
+#                        $Data{"ResponsibleOptionStrg"}
+#                        <a href="#" id="ResponsibleSelectionGetAll" class="GetAllAJAX" title="$Text{"Get all"}">$Text{"Get all"}</a>
+#<!--dtl:js_on_document_complete-->
+#<script type="text/javascript">//<![CDATA[
+#    $('#ResponsibleSelectionGetAll').bind('click', function (Event) {
+#        $('#ResponsibleAll').val('1'); // Needed? Why?
+#        Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'ResponsibleAll', ['NewResponsibleID'], function() {
+#            $('#NewResponsibleID').focus();
+#        });
+#        return false;
+#    });
+#
+#    $('#NewResponsibleID').bind('change', function (Event) {
+#        Core.AJAX.FormUpdate($('#NewPhoneTicket'), 'AJAXUpdate', 'NewResponsibleID', [ 'TypeID', 'Dest', 'NewUserID', 'NextStateID', 'PriorityID', 'ServiceID', 'SLAID', 'SignKeyID', 'CryptKeyID', 'To', 'Cc', 'Bcc', 'StandardTemplateID' $Data{"DynamicFieldNamesStrg"}]);
+#    });
+#//]]></script>
+#<!--dtl:js_on_document_complete-->
+#                    </div>
+#                    <div class="Clear"></div>
+#<!-- dtl:block:ResponsibleSelection -->
 
                     <label class="Mandatory" for="Subject"><span class="Marker">*</span> $Text{"Subject"}:</label>
                     <div class="Field">

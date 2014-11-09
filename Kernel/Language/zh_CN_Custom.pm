@@ -38,7 +38,6 @@ sub Data {
             'HongKong' => '香港',
             'GuangZhou' => '广州',
             'ShangHai' => '上海',
-            'Title' => '职位',
             'Street' => '地址',
             'Address' => '办公室',
             'Comment' => '部门',
