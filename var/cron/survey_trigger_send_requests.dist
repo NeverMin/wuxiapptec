@@ -11,4 +11,4 @@
 # Please remove the extension and uncomment the last line for production.
 
 # every 20 min
-#*/20 * * * * $HOME/bin/otrs.SurveyTriggerSendRequests.pl -e >> /dev/null
+*/20 * * * * $HOME/bin/otrs.SurveyTriggerSendRequests.pl -e >> /dev/null
