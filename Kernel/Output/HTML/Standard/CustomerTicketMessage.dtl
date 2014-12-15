@@ -37,7 +37,11 @@
                     <option value="16">WuXiPRA($Text{"ShangHai"})</option>
                     <option value="17">WuXiPRA($Text{"GuangZhou"})</option>
                     <option value="18">WuXiPRA($Text{"HongKong"})</option>
+<<<<<<< HEAD
                     <option value="18">MedKey($Text{"ShangHai"})</option>
+=======
+                    <option value="19">XBL(US)</option>
+>>>>>>> dev
                     </select>
                     <div id="TypeIDError" class="TooltipErrorMessage" ><p>$Text{"This field is required."}</p></div>
                     <div id="TypeIDServerError" class="TooltipErrorMessage NoJavaScriptMessage$QData{"TypeIDInvalid"}" ><p>$Text{"This field is required."}</p></div>

@@ -354,7 +354,11 @@ sub Run {
         # redirect with new session id and old params
         # prepare old redirect URL -- do not redirect to Login or Logout (loop)!
         if ( $Param{RequestedURL} =~ /Action=(Logout|Login|LostPassword)/ ) {
-            $Param{RequestedURL} = '';
+            $Param{RequestedURL} = '/otrs/index.pl?Action=AgentTicketStatusView';
+        }
+
+        if ( $Param{RequestedURL} =~ // ) {
+            $Param{RequestedURL} = '/otrs/index.pl?Action=AgentTicketStatusView';
         }
 
         # redirect with new session id
