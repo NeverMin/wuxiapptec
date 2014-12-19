@@ -62,6 +62,7 @@ $Include{"CustomerHeader"}
                         <button type="submit" value="$Text{"Log In"}" disabled="disabled">$Text{"Log In"}</button>
                     </div>
                     <div class="Clear"></div>
+                    <p><a href="http://itweb/teamsite/ITOperation/FAQ/SitePages/Home.aspx" target="_blank" style="color:red;text-decoration:underline;">IT FAQ Library</a></p>
                 </form>
 <!-- dtl:block:CreateAccountLink -->
                 <p>$Text{"Not yet registered?"} <a href="#Signup">$Text{"Sign up now"}</a>.</p>

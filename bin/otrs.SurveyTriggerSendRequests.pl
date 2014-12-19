@@ -136,7 +136,7 @@ for my $Line (@Rows) {
         = $CommonObject{TimeObject}->TimeStamp2SystemTime( String => $Line->{CreateTime} );
 
     # don't send for survey_requests that are younger than CreateTime + $SendINHoursAfterClose
-    if ( $SendInHoursAfterClose * 3600 + $CreateTime > $Now ) {
+    if ( $SendInHoursAfterClose * 60 + $CreateTime > $Now ) {
         if ( $Opts{v} ) {
             print
                 "Did not send for survey_request with id $Line->{ID} becaue send time was't reached yet.\n";
